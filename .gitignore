@@ -1,0 +1,9 @@
+.vscode
+*.log
+
+# npm
+node_modules
+
+# blog file
+# blog
+

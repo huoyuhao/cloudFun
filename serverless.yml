@@ -1,0 +1,32 @@
+component: http
+name: http-express-tN7I45QG5x
+inputs:
+  src:
+    src: ./
+    exclude:
+      - .env
+  faas:
+    framework: express
+    name: '${name}'
+    events:
+      - http:
+          parameters:
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE
+    runtime: Nodejs12.16
+    eip: false
+    timeout: 3
+    memorySize: 512
+    tags: []
+    environments: []
+    layers:
+      - name: '${output:${stage}:${app}:cloud-layer.name}'
+        version: '${output:${stage}:${app}:cloud-layer.version}'
+  region: ap-guangzhou
+  isAutoCiDeploy: false
+org: '1255351664'
+app: cloud
+stage: dev

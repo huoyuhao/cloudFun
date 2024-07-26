@@ -1,0 +1,13 @@
+org: '1255351664'
+app: cloud
+stage: dev
+component: layer
+name: cloud-layer
+inputs:
+  name: cloud-layer
+  region: ap-guangzhou
+  src:
+    src: ../node_modules
+    targetDir: /node_modules
+  runtimes:
+    - Nodejs12.16
