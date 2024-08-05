@@ -2,7 +2,7 @@ const express = require('express');
 const config = require('config');
 const path = require('path');
 const bodyParser = require('body-parser');
-// const routes = require('./router/index.js');
+const routes = require('./router/index.js');
 
 const app = express();
 const port = config.get('systemConfig.port');
@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 });
 // checkHealth
 app.get('/checkHealth', (req, res) => {
-  res.json({ code: 0, data: `接口检测正常!${port}` });
+  res.json({ code: 0, data: `服务端口${port}检测正常!` });
 });
 
 // Error handler
@@ -36,7 +36,7 @@ app.use((err, req, res) => {
 });
 
 // api请求路由
-// routes(app);
+routes(app);
 
 app.listen(port, () => {
   console.log(`App started on port ${port}`);
