@@ -32,7 +32,7 @@ app.get('/checkHealth', (req, res) => {
 // Error handler
 app.use((err, req, res) => {
   console.error(err);
-  res.json({ code: 500, data: JSON.stringify(err) });
+  res.json({ code: 500, data: err });
 });
 
 // api请求路由
