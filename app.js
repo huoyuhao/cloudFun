@@ -2,7 +2,7 @@ const express = require('express');
 const config = require('config');
 const path = require('path');
 const bodyParser = require('body-parser');
-const routes = require('./router/index.js');
+// const routes = require('./router/index.js');
 
 const app = express();
 const port = config.get('systemConfig.port');
@@ -36,7 +36,7 @@ app.use((err, req, res) => {
 });
 
 // api请求路由
-routes(app);
+// routes(app);
 
 app.listen(port, () => {
   console.log(`App started on port ${port}`);
