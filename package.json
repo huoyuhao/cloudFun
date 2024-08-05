@@ -4,10 +4,10 @@
   "description": "",
   "main": "sls.js",
   "scripts": {
-    "dev": "NODE_ENV=dev node ./src/app.js",
+    "dev": "NODE_ENV=dev node app.js",
     "lint": "eslint --cache --fix --ext .js ./",
-    "start-dev": "NODE_ENV=dev node ./src/app.js",
-    "start-master": "NODE_ENV=master node ./src/app.js"
+    "start-dev": "NODE_ENV=dev node app.js",
+    "start-master": "NODE_ENV=master node app.js"
   },
   "repository": {
     "type": "git",
