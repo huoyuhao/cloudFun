@@ -29,12 +29,6 @@ app.get('/checkHealth', (req, res) => {
   res.json({ code: 0, data: `服务端口${port}检测正常!` });
 });
 
-// Error handler
-// app.use((err, req, res) => {
-//   console.error(res, err);
-//   res.status(500).send('Internal Serverless Error');
-// });
-
 // api请求路由
 routes(app);
 
