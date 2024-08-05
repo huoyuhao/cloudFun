@@ -30,10 +30,10 @@ app.get('/checkHealth', (req, res) => {
 });
 
 // Error handler
-app.use((err, req, res) => {
-  console.error(err);
-  res.json({ code: 500, data: err });
-});
+// app.use((err, req, res) => {
+//   console.error(res, err);
+//   res.status(500).send('Internal Serverless Error');
+// });
 
 // api请求路由
 routes(app);
