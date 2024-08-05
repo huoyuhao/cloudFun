@@ -1,6 +1,6 @@
-import express from 'express';
 // import routes from './router/index';
 
+const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 
