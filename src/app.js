@@ -1,10 +1,12 @@
 // import routes from './router/index';
 
 const express = require('express');
+const config = require('config');
 const path = require('path');
 const bodyParser = require('body-parser');
 
 const app = express();
+const port = config.get('systemConfig.port');
 
 // 请求主体大小限制
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -25,7 +27,7 @@ app.get('/', (req, res) => {
 });
 // checkHealth
 app.get('/checkHealth', (req, res) => {
-  res.json({ code: 0, data: '接口检测正常!' });
+  res.json({ code: 0, data: `接口检测正常!${port}` });
 });
 
 // Error handler
@@ -37,6 +39,6 @@ app.use((err, req, res) => {
 // api请求路由
 // routes(app);
 
-app.listen(9000, () => {
-  console.log(`App started on port ${9000}`);
+app.listen(port, () => {
+  console.log(`App started on port ${port}`);
 });
