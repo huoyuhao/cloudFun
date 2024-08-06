@@ -11,9 +11,29 @@ const promisePool = require('mysql2').createPool({
   password          : DB_PASSWORD,
   database          : DB_DATABASE,
   connectionLimit   : 1
-}).promise();
+});
 
-exports.main_handler = async (event, context, callback) => {
-  let result = await promisePool.query('select * from users');
-  console.log(result);
-}
+// 获取数据库连接的函数
+let connect = () => {  
+  return new Promise((resolve, reject) => {    
+      pool.getConnection((err, connection) => {      
+          // 从连接池中获取连接      
+          !err ? resolve(connection) : reject(err);      // 若成功获取连接，返回连接对象，否则返回错误    
+      });  
+  });
+};
+
+
+// 需要传入sql语句和参数
+const query = (sql, params) => {  
+  return new Promise(async (resolve, reject) => {    
+      let connection = await connect(); // 获取数据库连接    
+      connection.query(sql, params, (err, results, fields) => {      
+          // 执行 SQL 查询语句      
+          !err ? resolve(results) : reject(err); // 若查询成功，返回查询结果，否则返回错误     
+           connection.release(); // 释放连接    
+      });  
+  });
+};
+// 导出 connect 和 query 函数
+module.exports = { connect, query };
