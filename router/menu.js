@@ -1,5 +1,4 @@
 const express = require('express');
-const mysql = require('mysql2');
 // eslint-disable-next-line new-cap
 const router = express.Router();
 
@@ -9,19 +8,21 @@ const DB_DATABASE = 'menu';
 const DB_USER = 'root';
 const DB_PASSWORD = '366351&huo';
 // 创建连接池
-const pool = mysql.createPool({
-  host: DB_HOST,
-  user: DB_USER,
-  port: DB_PORT,
-  password: DB_PASSWORD,
-  database: DB_DATABASE,
-  connectionLimit: 1
-});
+const { database } = require('scf-nodejs-serverlessdb-sdk');
+
+const mainHandler = async () => {
+  // use connection
+  const connection = await database('menu').connection();
+  const result = await connection.queryAsync('select * from users');
+  connection.release(); // must release before return
+  console.log('db2 query result:', result);
+};
 // 菜单服务
 router.post('/', async (req, res) => {
   const data = req.body;
   console.info(data);
-  const result = { code: 0, data: list };
+  mainHandler();
+  const result = { code: 0, data };
   res.json(result);
 });
 module.exports = router;
