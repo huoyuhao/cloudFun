@@ -21,19 +21,7 @@ const pool = mysql.createPool({
 router.post('/', async (req, res) => {
   const data = req.body;
   console.info(data);
-  pool.getConnection((err, connection) => {
-    if (err) return err;
-    connection.query('select * from users where id = ?', [1], (error, results) => {
-      if (error) {
-        return error;
-      }
-         res.json({ code: 200, data: results[0], msg: '0k' }); // 成功返回的数据
-
-      // 将连接返回到连接池中, 准备让其他人重复使用
-      connection.release();
-    });
-  });
-  // const result = { code: 0, data: list };
-  // res.json(result);
+  const result = { code: 0, data: list };
+  res.json(result);
 });
 module.exports = router;
