@@ -8,11 +8,21 @@ const database = require('scf-nodejs-serverlessdb-sdk').database
  
 const fun = async () => {
   //use connection
+  console.log('start connection mysql')
   const connection = await database('menu').connection()
   const result = await connection.queryAsync('select * from users')
   connection.release() //must release before return
   console.log('db2 query result:',result)
 }
+const host = process.env['DB_TESTDB2_HOST'];
+console.log(host)
+
+// process.env['DB_TESTDB2_HOST'] = 192.168.1.1
+// process.env['DB_TESTDB2_PORT'] = 3306
+// process.env['DB_TESTDB2_USER'] = ycp424c
+// process.env['DB_TESTDB2_PASSWORD'] = pwd123321123
+// process.env['DB_TESTDB2_DATABASE'] = db_name
+// process.env['DB_TESTDB2_CONNECTION_LIMIT']
 
 // const fun = async () => {
 //   try {
@@ -40,6 +50,8 @@ fun();
 router.post('/', async (req, res) => {
   const data = req.body;
   console.info(data);
+  const value = process.env['DB_TESTDB2_HOST'];
+  console.log(value)
   const result = { code: 0, data };
   res.json(result);
 });
