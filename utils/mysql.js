@@ -15,7 +15,6 @@ const marriagePool = mysql.createPool({
   ...mysqlConfig,
   database: 'marriage', // 数据库名称
 });
-console.log('test');
 // 封装sql执行函数
 const executeQuery = (pool, sql, values) => {
   return new Promise((resolve, reject) => {
@@ -25,9 +24,6 @@ const executeQuery = (pool, sql, values) => {
         return;
       }
       connection.query(sql, values, (queryErr, results) => {
-        console.log('results', results);
-        connection.release();
-
         if (queryErr) {
           reject(queryErr);
         } else {
@@ -44,5 +40,4 @@ const marriageQuery = (sql, values) => {
   return executeQuery(marriagePool, sql, values);
 };
 
-// 导出 connect 和 query 函数
 module.exports = { menuQuery, marriageQuery };
