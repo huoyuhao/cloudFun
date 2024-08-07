@@ -3,6 +3,17 @@ const express = require('express');
 const router = express.Router();
 
 // const mysql = require('mysql2');
+
+const database = require('scf-nodejs-serverlessdb-sdk').database
+ 
+const fun = async () => {
+  //use connection
+  const connection = await database('menu').connection()
+  const result = await connection.queryAsync('select * from users')
+  connection.release() //must release before return
+  console.log('db2 query result:',result)
+}
+
 // const fun = async () => {
 //   try {
 //     const connection = await mysql.createConnection({
@@ -24,7 +35,7 @@ const router = express.Router();
 //     console.log(e);
 //   }
 // }
-// fun();
+fun();
 // 菜单服务
 router.post('/', async (req, res) => {
   const data = req.body;
@@ -32,4 +43,6 @@ router.post('/', async (req, res) => {
   const result = { code: 0, data };
   res.json(result);
 });
+
+
 module.exports = router;
