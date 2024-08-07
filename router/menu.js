@@ -14,17 +14,19 @@ const router = express.Router();
 // }
 
 
-const mysql = require('mysql2');
+
+const mysql = require('mysql')
 
 const fun = async () => {
   try {
-    const connection = await mysql.createConnection({
+    const connection =  mysql.createConnection({
       host: '172.16.0.15',
       user: 'root',
       port: 3306,
       database: 'menu',
       password: '366351&huo'
-    });
+    })
+    connection.connect();
 
     connection.query(
       'SELECT * FROM `users`',
