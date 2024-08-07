@@ -1,7 +1,7 @@
 const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
-const { menuQuery, marriagePool } = require('../utils/mysql');
+const { menuQuery, marriageQuery } = require('../utils/mysql');
 
 // 菜单服务
 router.post('/', async (req, res) => {
@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
 router.post('/a', async (req, res) => {
   const data = req.body;
   console.info(data);
-  const list = await marriagePool('SELECT * FROM `users`');
+  const list = await marriageQuery('SELECT * FROM `users`');
   const result = { code: 0, data: list };
   res.json(result);
 });
