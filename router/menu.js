@@ -16,6 +16,8 @@ const fun = async () => {
 router.post('/', async (req, res) => {
   const data = req.body;
   console.info(data);
+  const value = process.env['DB_TESTDB2_HOST'];
+  console.log('DB_TESTDB2_HOST:', value)
   fun();
   const result = { code: 0, data };
   res.json(result);
