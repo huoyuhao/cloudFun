@@ -84,10 +84,12 @@ const menuQuery = (sql) => {
 const marriageQuery = (sql) => {
   return executeQuery(marriagePool, sql);
 };
-const getMenuTransaction = () => {
+const getMenuTransaction = async () => {
+  const connection = await getConnection(menuPool);
+
+  await beginTransaction(connection);
   return {
-    getConnection,
-    beginTransaction,
+    connection,
     queryConnection,
     commitTransaction,
     rollbackTransaction,

@@ -1,7 +1,7 @@
 const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
-const { menuQuery } = require('../utils/mysql');
+const { menuQuery, getMenuTransaction } = require('../utils/mysql');
 
 // 菜单服务
 router.post('/', async (req, res) => {
@@ -25,6 +25,56 @@ router.get('/list', async (req, res) => {
 // 获取详情 联表查询
 
 // 创建菜单
+router.post('/add1', async (req, res) => {
+  const data = req.body;
+  const { name, condiment, images, tags, steps, materials } = data;
+  if (!name || !condiment) {
+    return res.json({ code: 100, msg: '菜单名称和菜单调料不能为空', data: null });
+  }
+  const { connection, queryConnection, commitTransaction, rollbackTransaction, } = getMenuTransaction();
+  try {
+    const menuItem = await queryConnection(connection, `
+      insert into menu (name, condiment) values ('${name}', '${condiment}');
+    `);
+    const { insertId } = menuItem;
+    // 获取菜单id 插入子表
+    if (tags && tags.length > 0) {
+      const arr = tags.map((item) => `(${insertId}, '${item}')`);
+      const sql = `insert into menu_tag (menu_id, content) values ${ arr.join(',') };`;
+      await queryConnection(connection, sql);
+    }
+    if (steps && steps.length > 0) {
+      const arr = steps.map((item) => `(${insertId}, '${item}')`);
+      const sql = `insert into menu_step (menu_id, content) values ${ arr.join(',') };`;
+      await queryConnection(connection, sql);
+    }
+    await queryConnection(connection, 'kkb');
+    if (materials && materials.length > 0) {
+      const arr = materials.map((item) => `(${insertId}, '${item.name}', '${item.number}')`);
+      const sql = `insert into menu_material (menu_id, content, number) values ${ arr.join(',') };`;
+      await queryConnection(connection, sql);
+    }
+    if (images && images.length > 0) {
+      const arr = images.map((item) => `(${insertId}, '${item}')`);
+      const sql = `insert into menu_image (menu_id, content) values ${ arr.join(',') };`;
+      await queryConnection(connection, sql);
+    }
+    await commitTransaction(connection);
+    console.log('commit發作');
+    const result = { code: 0, data: 'success' };
+    res.json(result);
+  } catch (err) {
+    if (connection) {
+      await rollbackTransaction(connection);
+    }
+    console.error(300, err);
+    res.json({ code: 300, msg: '菜单创建失败', data: null });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+// 创建菜单 事务性提交
 router.post('/add', async (req, res) => {
   const data = req.body;
   const { name, condiment, images, tags, steps, materials } = data;
