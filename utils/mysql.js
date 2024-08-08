@@ -14,15 +14,22 @@ const menuPool = mysql.createPool({
 const marriagePool = mysql.createPool({
   ...mysqlConfig,
   database: 'marriage', // 数据库名称
-});
-// 封装sql执行函数
+});// 事务性
+const getConnection = (pool) => { // 單獨一個connect才可以用rollback
+  return new Promise((resolve, reject) => {
+    pool.getConnection((error, connection) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(connection);
+      }
+    });
+  });
+};
+// 封装单独sql执行函数 每次执行是一个单独的连接池连接 执行完成释放
 const executeQuery = (pool, sql) => {
   return new Promise((resolve, reject) => {
-    pool.getConnection((err, connection) => {
-      if (err) {
-        reject(err);
-        return;
-      }
+    getConnection(pool).then((connection) => {
       connection.query(sql, (queryErr, results) => {
         connection.release();
         if (queryErr) {
@@ -34,6 +41,7 @@ const executeQuery = (pool, sql) => {
     });
   });
 };
+
 const menuQuery = (sql) => {
   return executeQuery(menuPool, sql);
 };

@@ -40,7 +40,6 @@ router.post('/add', async (req, res) => {
     if (tags && tags.length > 0) {
       const arr = tags.map((item) => `(${insertId}, '${item}')`);
       const sql = `insert into menu_tag (menu_id, content) values ${ arr.join(',') };`;
-      console.log(sql);
       menuQuery(sql);
     }
     if (steps && steps.length > 0) {
@@ -48,10 +47,15 @@ router.post('/add', async (req, res) => {
       const sql = `insert into menu_step (menu_id, content) values ${ arr.join(',') };`;
       menuQuery(sql);
     }
-    // menuQuery(`kkb`);
+    menuQuery('kkb');
     if (materials && materials.length > 0) {
       const arr = materials.map((item) => `(${insertId}, '${item.name}', '${item.number}')`);
       const sql = `insert into menu_material (menu_id, content, number) values ${ arr.join(',') };`;
+      menuQuery(sql);
+    }
+    if (images && images.length > 0) {
+      const arr = images.map((item) => `(${insertId}, '${item}')`);
+      const sql = `insert into menu_image (menu_id, content) values ${ arr.join(',') };`;
       menuQuery(sql);
     }
     const result = { code: 0, data: 'success' };
