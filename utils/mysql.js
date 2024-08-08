@@ -65,22 +65,16 @@ const queryConnection = (connection, query) => { // 增加參數 connection的�
 // 封装单独sql执行函数 每次执行是一个单独的连接池连接 执行完成释放
 const executeQuery = (pool, sql) => {
   return new Promise((resolve, reject) => {
-    try {
-      getConnection(pool).then((connection) => {
-        connection.query(sql, (queryErr, results) => {
-          connection.release();
-          if (queryErr) {
-            console.error(301, queryErr);
-            reject(queryErr);
-          } else {
-            resolve(results);
-          }
-        });
+    getConnection(pool).then((connection) => {
+      connection.query(sql, (queryErr, results) => {
+        connection.release();
+        if (queryErr) {
+          reject(queryErr);
+        } else {
+          resolve(results);
+        }
       });
-    } catch (err) {
-        console.error(303, err);
-        reject(err);
-      }
+    });
   });
 };
 
