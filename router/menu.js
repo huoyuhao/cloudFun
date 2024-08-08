@@ -77,7 +77,8 @@ router.post('/add', async (req, res) => {
 // 删除菜单
 
 router.delete('/delete', async (req, res) => {
-  const data = req.params;
+  const data = req.query;
+  console.log(data);
   const { id } = data;
   if (!id) {
     return res.json({ code: 100, msg: '删除菜单的ID不能为空', data: null });
