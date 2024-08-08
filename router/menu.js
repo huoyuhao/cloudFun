@@ -1,7 +1,13 @@
 const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
-const { menuQuery, getMenuTransaction } = require('../utils/mysql');
+const {
+  menuQuery,
+   queryConnection,
+    commitTransaction,
+    rollbackTransaction,
+     getMenuTransaction
+     } = require('../utils/mysql');
 
 // 菜单服务
 router.post('/', async (req, res) => {
@@ -32,7 +38,7 @@ router.post('/add', async (req, res) => {
     return res.json({ code: 100, msg: '菜单名称和菜单调料不能为空', data: null });
   }
   // 连接数据库连接池 获取事务提交 回滚方法
-  const { connection, queryConnection, commitTransaction, rollbackTransaction, } = getMenuTransaction();
+  const connection = getMenuTransaction();
   try {
     const menuItem = await queryConnection(connection, `
       insert into menu (name, condiment) values ('${name}', '${condiment}');
@@ -83,31 +89,10 @@ router.delete('/delete', async (req, res) => {
     return res.json({ code: 100, msg: '删除菜单的ID不能为空', data: null });
   }
   // 连接数据库连接池 获取事务提交 回滚方法
-  const { connection, queryConnection, commitTransaction, rollbackTransaction, } = getMenuTransaction();
+  const connection = getMenuTransaction();
   try {
     const menuItem = await queryConnection(connection, `delete from menu where id =${id};`);
     console.log(menuItem);
-    // 获取菜单id 删除子表
-    // if (tags && tags.length > 0) {
-    //   const arr = tags.map((item) => `(${insertId}, '${item}')`);
-    //   const sql = `insert into menu_tag (menu_id, content) values ${ arr.join(',') };`;
-    //   await queryConnection(connection, sql);
-    // }
-    // if (steps && steps.length > 0) {
-    //   const arr = steps.map((item) => `(${insertId}, '${item}')`);
-    //   const sql = `insert into menu_step (menu_id, content) values ${ arr.join(',') };`;
-    //   await queryConnection(connection, sql);
-    // }
-    // if (materials && materials.length > 0) {
-    //   const arr = materials.map((item) => `(${insertId}, '${item.name}', '${item.number}')`);
-    //   const sql = `insert into menu_material (menu_id, content, number) values ${ arr.join(',') };`;
-    //   await queryConnection(connection, sql);
-    // }
-    // if (images && images.length > 0) {
-    //   const arr = images.map((item) => `(${insertId}, '${item}')`);
-    //   const sql = `insert into menu_image (menu_id, content) values ${ arr.join(',') };`;
-    //   await queryConnection(connection, sql);
-    // }
     await commitTransaction(connection);
     const result = { code: 0, data: 'success' };
     res.json(result);

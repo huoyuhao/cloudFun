@@ -88,12 +88,14 @@ const getMenuTransaction = async () => {
   const connection = await getConnection(menuPool);
 
   await beginTransaction(connection);
-  return {
-    connection,
-    queryConnection,
-    commitTransaction,
-    rollbackTransaction,
-  };
+  return connection;
 };
 
-module.exports = { menuQuery, marriageQuery, getMenuTransaction };
+module.exports = {
+  menuQuery,
+   marriageQuery,
+    getMenuTransaction,
+     queryConnection,
+     commitTransaction,
+     rollbackTransaction
+    };
