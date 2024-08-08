@@ -38,18 +38,19 @@ router.post('/add', async (req, res) => {
     const { insertId } = menuItem;
     // 获取菜单id 插入子表
     if (tags && tags.length > 0) {
-      const arr = tags.map((item) => `(${insertId}, ${item})`);
+      const arr = tags.map((item) => `(${insertId}, '${item}')`);
       const sql = `insert into menu_tag (menu_id, content) values ${ arr.join(',') };`;
+      console.log(sql);
       menuQuery(sql);
     }
     if (steps && steps.length > 0) {
-      const arr = steps.map((item) => `(${insertId}, ${item})`);
+      const arr = steps.map((item) => `(${insertId}, '${item}')`);
       const sql = `insert into menu_step (menu_id, content) values ${ arr.join(',') };`;
       menuQuery(sql);
     }
     // menuQuery(`kkb`);
     if (materials && materials.length > 0) {
-      const arr = materials.map((item) => `(${insertId}, ${item.name}, ${item.number})`);
+      const arr = materials.map((item) => `(${insertId}, '${item.name}', '${item.number}')`);
       const sql = `insert into menu_material (menu_id, content, number) values ${ arr.join(',') };`;
       menuQuery(sql);
     }

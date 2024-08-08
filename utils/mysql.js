@@ -24,6 +24,7 @@ const executeQuery = (pool, sql) => {
         return;
       }
       connection.query(sql, (queryErr, results) => {
+        connection.release();
         if (queryErr) {
           reject(queryErr);
         } else {
