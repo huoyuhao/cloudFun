@@ -78,8 +78,7 @@ router.post('/add', async (req, res) => {
 
 router.delete('/delete', async (req, res) => {
   const data = req.query;
-  console.log(data);
-  const { id } = data;
+  const id = Number(data.id);
   if (!id) {
     return res.json({ code: 100, msg: '删除菜单的ID不能为空', data: null });
   }
@@ -116,6 +115,7 @@ router.delete('/delete', async (req, res) => {
     if (connection) {
       await rollbackTransaction(connection);
     }
+    console.log(err);
     res.json({ code: 300, msg: '菜单删除失败', data: null });
   } finally {
     if (connection) connection.release();
