@@ -27,23 +27,43 @@ router.get('/list', async (req, res) => {
 // 创建菜单
 router.post('/add', async (req, res) => {
   const data = req.body;
-  console.info(data);
-  const { name, condiment } = data;
+  const { name, condiment, images, tags, steps, materials } = data;
   if (!name || !condiment) {
-    return res.json({ code: 1, msg: '菜单名称和菜单调料不能为空', data: null });
+    return res.json({ code: 100, msg: '菜单名称和菜单调料不能为空', data: null });
   }
-  const list = await menuQuery(`
-    insert into menu (name, condiment) values ('${name}', '${condiment}');
-  `);
-  // 获取菜单id 插入子表
-  console.info(list);
-  const result = { code: 0, data: list };
-  res.json(result);
+  try {
+    const menuItem = await menuQuery(`
+      insert into menu (name, condiment) values ('${name}', '${condiment}');
+    `);
+    const { insertId } = menuItem;
+    // 获取菜单id 插入子表
+    if (tags?.length > 0) {
+      const arr = tags.map((item) => `(${insertId}, ${item})`);
+      const sql = `insert into menu_tag (menu_id, content) values ${ arr.join(',') };`;
+      menuQuery(sql);
+    }
+    if (steps?.length > 0) {
+      const arr = steps.map((item) => `(${insertId}, ${item})`);
+      const sql = `insert into menu_step (menu_id, content) values ${ arr.join(',') };`;
+      menuQuery(sql);
+    }
+    // menuQuery(`kkb`);
+    if (materials?.length > 0) {
+      const arr = materials.map((item) => `(${insertId}, ${item.name}, ${item.number})`);
+      const sql = `insert into menu_material (menu_id, content, number) values ${ arr.join(',') };`;
+      menuQuery(sql);
+    }
+    const result = { code: 0, data: 'success' };
+    res.json(result);
+  } catch (err) {
+    console.error(300, err);
+    res.json({ code: 300, msg: '菜单创建失败', data: null });
+  }
 });
 
 // 修改菜单 重新提交所有内容
 
 // 删除菜单
 
-// 
+//
 module.exports = router;
