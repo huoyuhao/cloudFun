@@ -16,14 +16,14 @@ const marriagePool = mysql.createPool({
   database: 'marriage', // 数据库名称
 });
 // 封装sql执行函数
-const executeQuery = (pool, sql, values) => {
+const executeQuery = (pool, sql) => {
   return new Promise((resolve, reject) => {
     pool.getConnection((err, connection) => {
       if (err) {
         reject(err);
         return;
       }
-      connection.query(sql, values, (queryErr, results) => {
+      connection.query(sql, (queryErr, results) => {
         if (queryErr) {
           reject(queryErr);
         } else {
@@ -33,11 +33,11 @@ const executeQuery = (pool, sql, values) => {
     });
   });
 };
-const menuQuery = (sql, values) => {
-  return executeQuery(menuPool, sql, values);
+const menuQuery = (sql) => {
+  return executeQuery(menuPool, sql);
 };
-const marriageQuery = (sql, values) => {
-  return executeQuery(marriagePool, sql, values);
+const marriageQuery = (sql) => {
+  return executeQuery(marriagePool, sql);
 };
 
 module.exports = { menuQuery, marriageQuery };
