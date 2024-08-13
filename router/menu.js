@@ -91,7 +91,7 @@ router.delete('/delete', async (req, res) => {
   // 连接数据库连接池 获取事务提交 回滚方法
   const connection = getMenuTransaction();
   try {
-    const menuItem = await queryConnection(connection, `delete from menu where id =${id};`);
+    const menuItem = await queryConnection(connection, `delete from menu where id=${id};`);
     console.log(menuItem);
     await commitTransaction(connection);
     const result = { code: 0, data: 'success' };
