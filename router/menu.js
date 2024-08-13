@@ -3,11 +3,11 @@ const express = require('express');
 const router = express.Router();
 const {
   menuQuery,
-   queryConnection,
-    commitTransaction,
-    rollbackTransaction,
-     getMenuTransaction
-     } = require('../utils/mysql');
+  queryConnection,
+  commitTransaction,
+  rollbackTransaction,
+  getMenuTransaction
+} = require('../utils/mysql');
 
 // 菜单服务
 router.post('/', async (req, res) => {
@@ -103,8 +103,7 @@ router.delete('/delete', async (req, res) => {
     console.log(err);
     res.json({ code: 300, msg: '菜单删除失败', data: null });
   } finally {
-    if (connection) connection.release();
+    // if (connection) connection.release();
   }
 });
-//
 module.exports = router;
