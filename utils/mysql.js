@@ -93,9 +93,9 @@ const getMenuTransaction = async () => {
 
 module.exports = {
   menuQuery,
-   marriageQuery,
-    getMenuTransaction,
-     queryConnection,
-     commitTransaction,
-     rollbackTransaction
-    };
+  marriageQuery,
+  getMenuTransaction,
+  queryConnection,
+  commitTransaction,
+  rollbackTransaction
+};
