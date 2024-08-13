@@ -97,10 +97,10 @@ router.delete('/delete', async (req, res) => {
     const result = { code: 0, data: 'success' };
     res.json(result);
   } catch (err) {
+    console.log(err);
     if (connection) {
       await rollbackTransaction(connection);
     }
-    console.log(err);
     res.json({ code: 300, msg: '菜单删除失败', data: null });
   } finally {
     // if (connection) connection.release();
