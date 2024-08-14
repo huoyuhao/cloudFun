@@ -52,7 +52,7 @@ router.get('/list', async (req, res) => {
       });
     })
     data = menus.map(item => {
-      const { materials, images, tags, steps } = obj[item.id];
+      const { materials, images, tags, steps } = obj[item.id] || {};
       return { ...item, materials, images, tags, steps };
     })
     console.log(obj);
