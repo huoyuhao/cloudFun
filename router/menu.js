@@ -10,7 +10,7 @@ const {
 } = require('../utils/mysql');
 
 // 菜单服务
-router.post('/', async (req, res) => {
+router.get('/', async (req, res) => {
   const data = req.body;
   console.info(data);
   const list = await menuQuery('SELECT * FROM `menu`');
@@ -22,14 +22,24 @@ router.post('/', async (req, res) => {
 
 // 获取列表
 router.get('/list', async (req, res) => {
-  const list = await menuQuery('SELECT * FROM `menu`');
-  // 联表查询 名称 图片 标签 原料
+  const data = req.query;
+  const id = Number(data.id);
+  let list = [];
+  if (id) {
+    list = await menuQuery('select * from menu where id = ' + id);
+  } else {
+    list = await menuQuery('select * from menu');
+  }
+  // const res = await Promise.all([
+  //   menuQuery('select * from menu_material'),
+  //   menuQuery('select * from menu_image'),
+  //   menuQuery('select * from menu_tag'),
+  //   menuQuery('select * from menu_step'),
+  // ]);
+  // list.map(item )
   const result = { code: 0, data: list };
   res.json(result);
 });
-
-// 获取详情 联表查询
-
 // 创建菜单 事务性提交
 router.post('/add', async (req, res) => {
   const data = req.body;
@@ -102,7 +112,7 @@ router.delete('/delete', async (req, res) => {
     const result = { code: 0, data: 'success' };
     res.json(result);
   } catch (err) {
-    console.log(err);
+    console.info(err);
     if (connection) {
       await rollbackTransaction(connection);
     }
