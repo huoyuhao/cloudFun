@@ -92,13 +92,12 @@ router.delete('/delete', async (req, res) => {
   const connection = await getMenuTransaction();
   try {
     await queryConnection(connection, `delete from menu where id=${id};`);
-    const res = await Promise.all([
+    await Promise.all([
       queryConnection(connection, `delete from menu_image where menu_id=${id};`),
       queryConnection(connection, `delete from menu_material where menu_id=${id};`),
       queryConnection(connection, `delete from menu_step where menu_id=${id};`),
       queryConnection(connection, `delete from menu_tag where menu_id=${id};`),
     ]);
-    console.log(res);
     await commitTransaction(connection);
     const result = { code: 0, data: 'success' };
     res.json(result);
