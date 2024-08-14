@@ -22,25 +22,28 @@ router.get('/', async (req, res) => {
 
 // 获取列表
 router.get('/list', async (req, res) => {
-  const data = req.query;
-  const id = Number(data.id);
-  let list = [];
+  const queryData = req.query;
+  const id = Number(queryData.id);
+  let data = [];
   if (id) {
-    list = await menuQuery(`select * from menu where id=${id}`);
-  } else {
-    list = await menuQuery('select * from menu');
-  }
-  list.forEach(async (item) => {
-    const res = await Promise.all([
-      // menuQuery(`select * from menu_material where menu_id = ${id}`),
+    const [menu, materials, images, tags, steps] = await Promise.all([
+      menuQuery(`select * from menu where id = ${id}`),
+      menuQuery(`select * from menu_material where menu_id = ${id}`),
       menuQuery(`select * from menu_image where menu_id = ${id}`),
-      // menuQuery(`select * from menu_tag where menu_id = ${id}`),
-      // menuQuery(`select * from menu_step where menu_id = ${id}`),
+      menuQuery(`select * from menu_tag where menu_id = ${id}`),
+      menuQuery(`select * from menu_step where menu_id = ${id}`),
     ]);
-    console.log(res);
-  });
-  // list.map(item )
-  const result = { code: 0, data: list };
+    data = { ...menu,  materials, images, tags, steps }
+  } else {
+    const res = await Promise.all([
+      menuQuery(`select * from menu`),
+      menuQuery(`select * from menu_material`),
+      menuQuery(`select * from menu_image`),
+      menuQuery(`select * from menu_tag`),
+      menuQuery(`select * from menu_step`),
+    ]);
+  }
+  const result = { code: 0, data };
   res.json(result);
 });
 // 创建菜单 事务性提交
