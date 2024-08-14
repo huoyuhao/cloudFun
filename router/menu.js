@@ -91,8 +91,14 @@ router.delete('/delete', async (req, res) => {
   // 连接数据库连接池 获取事务提交 回滚方法
   const connection = await getMenuTransaction();
   try {
-    const menuItem = await queryConnection(connection, `delete from menu where id=${id};`);
-    console.log(menuItem);
+    await queryConnection(connection, `delete from menu where id=${id};`);
+    const res = await Promise.all([
+      queryConnection(connection, `delete from menu_image where menu_id=${id};`),
+      queryConnection(connection, `delete from menu_material where menu_id=${id};`),
+      queryConnection(connection, `delete from menu_step where menu_id=${id};`),
+      queryConnection(connection, `delete from menu_tag where menu_id=${id};`),
+    ]);
+    console.log(res);
     await commitTransaction(connection);
     const result = { code: 0, data: 'success' };
     res.json(result);
@@ -103,7 +109,7 @@ router.delete('/delete', async (req, res) => {
     }
     res.json({ code: 300, msg: '菜单删除失败', data: null });
   } finally {
-    // if (connection) connection.release();
+    if (connection) connection.release();
   }
 });
 module.exports = router;

@@ -1,4 +1,5 @@
-# .eslintignore
+.eslintignore
+.eslintcache
 # 旧的不需打包的Js库
 *.min.js
 
