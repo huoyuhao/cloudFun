@@ -29,6 +29,15 @@ app.get('/checkHealth', (req, res) => {
   res.json({ code: 0, data: `服务端口${port}检测正常!` });
 });
 
+// 需要处理其他api请求没有匹配到路径的数据 返回404
+app.use((req, res) => {
+  res.status(404).send('Not Found');
+});
+// 添加全局错误处理
+app.use((err, req, res) => {
+  console.error(err.stack);
+  return res.status(500).json({ status: 500, message: '内部错误' });
+});
 // api请求路由
 routes(app);
 
