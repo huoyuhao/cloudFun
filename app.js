@@ -31,7 +31,7 @@ app.get('/checkHealth', (req, res) => {
 
 // 需要处理其他api请求没有匹配到路径的数据 返回404
 app.use((req, res) => {
-  res.status(404).send('Not Found');
+  res.status(404).json({ status: 404, message: '没有找到接口' });
 });
 // 添加全局错误处理
 app.use((err, req, res) => {
