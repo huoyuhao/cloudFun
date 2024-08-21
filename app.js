@@ -31,12 +31,12 @@ app.get('/checkHealth', (req, res) => {
 
 // 需要处理其他api请求没有匹配到路径的数据 返回404
 app.use((req, res) => {
-  res.status(404).json({ status: 404, message: '没有找到接口' });
+  res.status(404).json({ code: 404, msg: '没有找到接口' });
 });
 // 添加全局错误处理
 app.use((err, req, res) => {
   console.error(err.stack);
-  return res.status(500).json({ status: 500, message: '内部错误' });
+  return res.status(500).json({ code: 500, msg: '内部错误' });
 });
 // api请求路由
 routes(app);
