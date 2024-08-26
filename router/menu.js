@@ -111,10 +111,10 @@ router.delete('/delete', async (req, res) => {
   if (!id) {
     return res.json({ code: 100, msg: '删除菜单的ID不能为空', data: null });
   }
+  a
   // 连接数据库连接池 获取事务提交 回滚方法
   const connection = await getMenuTransaction();
   try {
-    a
     await queryConnection(connection, `delete from menu where id=${id};`);
     await Promise.all([
       queryConnection(connection, `delete from menu_image where menu_id=${id};`),
