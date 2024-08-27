@@ -31,13 +31,13 @@ router.get('/list', async (req, res) => {
       menuQuery('select * from menu_tag'),
       menuQuery('select * from menu_step'),
     ]);
-    const tranObj = { 1: 'materials', 2: 'images', 3: 'tags', 4: 'steps' };
+    const tranArr = ['materials', 'images', 'tags', 'steps'];
     const obj = {};
     list.forEach((arr, index) => {
       arr.forEach((item) => {
         if (!obj[item.menu_id]) obj[item.menu_id] = {};
-        if (!obj[item.menu_id][tranObj[index]]) obj[item.menu_id][tranObj[index]] = [];
-        obj[item.menu_id][tranObj[index]].push(item);
+        if (!obj[item.menu_id][tranArr[index]]) obj[item.menu_id][tranArr[index]] = [];
+        obj[item.menu_id][tranArr[index]].push(item);
       });
     });
     data = menus.map((item) => {
