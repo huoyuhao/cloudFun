@@ -15,40 +15,24 @@ router.get('/list', async (req, res) => {
   const id = Number(queryData.id);
   let data = [];
   if (id) {
-    const [menu, materials, images, tags, steps] = await Promise.all([
+    const [menu, images] = await Promise.all([
       menuQuery(`select * from menu where id = ${id}`),
-      menuQuery(`select * from menu_material where menu_id = ${id}`),
       menuQuery(`select * from menu_image where menu_id = ${id}`),
-      menuQuery(`select * from menu_tag where menu_id = ${id}`),
-      menuQuery(`select * from menu_step where menu_id = ${id}`),
     ]);
-    data = { ...menu[0], materials, images, tags, steps };
+    data = { ...menu[0], images };
   } else {
-    const [menus, ...list] = await Promise.all([
+    const [menus, images] = await Promise.all([
       menuQuery('select * from menu'),
-      menuQuery('select * from menu_material'),
       menuQuery('select * from menu_image'),
-      menuQuery('select * from menu_tag'),
-      menuQuery('select * from menu_step'),
     ]);
-    const tranArr = ['materials', 'images', 'tags', 'steps'];
     const obj = {};
-    list.forEach((arr, index) => {
-      arr.forEach((item) => {
-        if (!obj[item.menu_id]) obj[item.menu_id] = {};
-        if (!obj[item.menu_id][tranArr[index]]) obj[item.menu_id][tranArr[index]] = [];
-        obj[item.menu_id][tranArr[index]].push(item);
-      });
+    images.forEach((item) => {
+      if (!obj[item.menu_id]) obj[item.menu_id] = {};
+      if (!obj[item.menu_id].images) obj[item.menu_id].images = [];
+      obj[item.menu_id].images.push(item);
     });
     data = menus.map((item) => {
-      const { materials, images, tags, steps } = obj[item.id] || {};
-      return {
-        ...item,
-        materials: materials || [],
-        images: images || [],
-        tags: tags || [],
-        steps: steps || [],
-      };
+      return { ...item, images: obj[item.id].images || [], };
     });
   }
   const result = { code: 0, data };
@@ -57,7 +41,7 @@ router.get('/list', async (req, res) => {
 // 创建菜单 事务性提交
 router.post('/add', async (req, res) => {
   const data = req.body;
-  const { name, condiment, images, tags, steps, materials } = data;
+  const { name, condiment, images, tag, step, material } = data;
   if (!name || !condiment) {
     return res.json({ code: 100, msg: '菜单名称和菜单调料不能为空', data: null });
   }
@@ -65,25 +49,11 @@ router.post('/add', async (req, res) => {
   const connection = await getMenuTransaction();
   try {
     const menuItem = await queryConnection(connection, `
-      insert into menu (name, condiment) values ('${name}', '${condiment}');
+      insert into menu (name, condiment, tag, material, step) values
+      ('${name}', '${condiment}', '${tag}', '${material}', '${step}');
     `);
     const { insertId } = menuItem;
     // 获取菜单id 插入子表
-    if (tags && tags.length > 0) {
-      const arr = tags.map((item) => `(${insertId}, '${item}')`);
-      const sql = `insert into menu_tag (menu_id, content) values ${ arr.join(',') };`;
-      await queryConnection(connection, sql);
-    }
-    if (steps && steps.length > 0) {
-      const arr = steps.map((item) => `(${insertId}, '${item}')`);
-      const sql = `insert into menu_step (menu_id, content) values ${ arr.join(',') };`;
-      await queryConnection(connection, sql);
-    }
-    if (materials && materials.length > 0) {
-      const arr = materials.map((item) => `(${insertId}, '${item.name}', '${item.number}')`);
-      const sql = `insert into menu_material (menu_id, content, number) values ${ arr.join(',') };`;
-      await queryConnection(connection, sql);
-    }
     if (images && images.length > 0) {
       const arr = images.map((item) => `(${insertId}, '${item}')`);
       const sql = `insert into menu_image (menu_id, content) values ${ arr.join(',') };`;
@@ -111,16 +81,12 @@ router.delete('/delete', async (req, res) => {
   if (!id) {
     return res.json({ code: 100, msg: '删除菜单的ID不能为空', data: null });
   }
-  a
   // 连接数据库连接池 获取事务提交 回滚方法
   const connection = await getMenuTransaction();
   try {
     await queryConnection(connection, `delete from menu where id=${id};`);
     await Promise.all([
       queryConnection(connection, `delete from menu_image where menu_id=${id};`),
-      queryConnection(connection, `delete from menu_material where menu_id=${id};`),
-      queryConnection(connection, `delete from menu_step where menu_id=${id};`),
-      queryConnection(connection, `delete from menu_tag where menu_id=${id};`),
     ]);
     await commitTransaction(connection);
     const result = { code: 0, data: 'success' };
