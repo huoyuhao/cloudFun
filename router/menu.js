@@ -32,7 +32,7 @@ router.get('/list', async (req, res) => {
       obj[item.menu_id].images.push(item);
     });
     data = menus.map((item) => {
-      return { ...item, images: obj[item.id].images || [], };
+      return { ...item, images: (obj[item.id] && obj[item.id].images) || [], };
     });
   }
   const result = { code: 0, data };
