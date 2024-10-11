@@ -19,6 +19,7 @@ router.get('/list', async (req, res) => {
       menuQuery(`select * from menu where id = ${id}`),
       menuQuery(`select content from menu_image where menu_id = ${id}`),
     ]);
+    console.log(images);
     data = { ...menu[0], images };
   } else {
     const [menus, images] = await Promise.all([
@@ -31,6 +32,7 @@ router.get('/list', async (req, res) => {
       if (!obj[item.menu_id].images) obj[item.menu_id].images = [];
       obj[item.menu_id].images.push(item);
     });
+    console.log(images);
     data = menus.map((item) => {
       return { ...item, images: (obj[item.id] && obj[item.id].images) || [], };
     });
