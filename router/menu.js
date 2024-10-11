@@ -15,22 +15,23 @@ router.get('/list', async (req, res) => {
   const id = Number(queryData.id);
   let data = [];
   if (id) {
-    const [menu, images] = await Promise.all([
+    const [menu, imageList] = await Promise.all([
       menuQuery(`select * from menu where id = ${id}`),
-      menuQuery(`select content from menu_image where menu_id = ${id}`),
+      menuQuery(`select * from menu_image where menu_id = ${id}`),
     ]);
-    console.log(images);
+    console.log(imageList);
+    const images = imageList.map(item => item.content);
     data = { ...menu[0], images };
   } else {
     const [menus, images] = await Promise.all([
       menuQuery('select * from menu'),
-      menuQuery('select content from menu_image'),
+      menuQuery('select * from menu_image'),
     ]);
     const obj = {};
     images.forEach((item) => {
       if (!obj[item.menu_id]) obj[item.menu_id] = {};
       if (!obj[item.menu_id].images) obj[item.menu_id].images = [];
-      obj[item.menu_id].images.push(item);
+      obj[item.menu_id].images.push(item.content);
     });
     console.log(images);
     data = menus.map((item) => {
