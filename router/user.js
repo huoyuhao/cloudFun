@@ -1,6 +1,6 @@
 const express = require('express');
 const config = require('config');
-const http = require('../utils/request.js');
+// const http = require('../utils/request.js');
 const { getUrlParam } = require('../utils/common.js');
 
 // eslint-disable-next-line new-cap
@@ -24,15 +24,15 @@ router.get('/login', async (req, res) => {
       grant_type: 'authorization_code',
     };
     const str = getUrlParam(postData);
-    http
-      .request({ url: `${api}${str}` })
-      .then((res) => {
-        console.log(111, res);
-        resolve({ code: -1, data: res });
-      })
-      .catch((error) => {
-        resolve(error);
-      });
+    // http
+    //   .request({ url: `${api}${str}` })
+    //   .then((res) => {
+    //     console.log(111, res);
+        resolve({ code: -1, data: postData });
+    //   })
+    //   .catch((error) => {
+    //     resolve(error);
+    //   });
   });
   res.json(result);
 });
