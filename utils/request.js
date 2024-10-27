@@ -42,77 +42,29 @@ const showStatus = (status) => {
   }
   return `${message}，请检查网络或联系管理员！`;
 };
-class Interceptors {
-  instance;
-  constructor() {
-    this.instance = axios.create({
-      baseURL: '/',
-      timeout: 120 * 1000,
-      withCredentials: true,
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/json;charset=utf-8',
-      },
-    });
-    this.setupInterceptors();
-  }
-  // 初始化拦截器
-  setupInterceptors() {
-    // 请求接口拦截器
-    this.instance.interceptors.request.use(
-      (config) => {
-        const { method } = config;
-        let url = config.url || '';
-        // 解决入参中文问题
-        if (method === 'get') url = encodeURI(url);
-        return { ...config, url };
-      },
-      () => {
-        // 错误抛到业务代码
-        const error = { data: { code: -1, msg: '服务器异常' } };
-        return Promise.resolve(error);
-      },
-    );
-    // 响应拦截器
-    this.instance.interceptors.response.use(
-      (response) => Promise.resolve(response.data),
-      (error) => {
-        const { status } = error.response || {};
-        if (status < 200 || status >= 300) {
-          // 处理http错误，抛到业务代码
-          const msg = showStatus(status);
-          return Promise.reject({ msg, code: Number(status), error });
-        }
-        const msg = error.message ? `接口访问失败，${error.message}` : '请求发送失败';
-        return Promise.reject({ msg, code: -1, error });
-      },
-    );
-  }
-  // 返回一下
-  getInterceptors() {
-    return this.instance;
-  }
-}
+const instance = axios.create({
+  baseURL: '/',
+  timeout: 10000,
+  withCredentials: true,
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest',
+    'Content-Type': 'application/json;charset=utf-8',
+  },
+});
 
-// 请求配置
-class HttpServer {
-  static axios;
-  // 获取axios实例
-  constructor() {
-    HttpServer.axios = new Interceptors().getInterceptors();
-  }
-  // 简单封装一下方法
-  request(config) {
-    return new Promise((resolve, reject) => {
-      HttpServer.axios(config)
-        .then((res) => {
-          resolve(res);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
-}
+// 拦截器
+instance.interceptors.response.use(
+  (response) => Promise.resolve(response.data),
+  (error) => {
+    const { status } = error.response || {};
+    if (status < 200 || status >= 300) {
+      // 处理http错误，抛到业务代码
+      const msg = showStatus(status);
+      return Promise.reject({ msg, code: Number(status), error });
+    }
+    const msg = error.message ? `接口访问失败，${error.message}` : '请求发送失败';
+    return Promise.reject({ msg, code: -1, error });
+  },
+);
 
-module.exports = new HttpServer();
+module.exports = instance;
