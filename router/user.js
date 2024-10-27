@@ -1,6 +1,6 @@
 const express = require('express');
 const config = require('config');
-const request = require('request');
+const axios = require('axios');
 const { getUrlParam } = require('../utils/common.js');
 
 // eslint-disable-next-line new-cap
