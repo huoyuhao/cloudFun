@@ -1,6 +1,6 @@
 const express = require('express');
 const config = require('config');
-const http = require('../utils/request.js');
+const axios = require('axios');
 const { getUrlParam } = require('../utils/common.js');
 
 // eslint-disable-next-line new-cap
@@ -11,7 +11,6 @@ const miniConfig = config.get('mini');
 router.get('/login', async (req, res) => {
   const queryData = req.query;
   const { code } = queryData;
-  console.log('code', code);
   // 通过appId code secret验证用户凭证
   const result = await new Promise((resolve) => {
     const api = 'https://api.weixin.qq.com/sns/jscode2session';
@@ -24,7 +23,9 @@ router.get('/login', async (req, res) => {
       grant_type: 'authorization_code',
     };
     const str = getUrlParam(postData);
-    http
+    try {
+      
+      axios
       .get(`${api}${str}`)
       .then((res) => {
         console.log(111, res);
@@ -33,7 +34,12 @@ router.get('/login', async (req, res) => {
       .catch((error) => {
         resolve(error);
       });
+    } catch (e) {
+      console.log('e', e);
+      resolve(e);
+    }
   });
   res.json(result);
 });
+
 module.exports = router;
