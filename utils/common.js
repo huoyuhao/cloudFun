@@ -1,4 +1,4 @@
-export const getUrlParam = (obj) => {
+ const getUrlParam = (obj) => {
   let url = '';
   if (!obj) return url;
   Object.keys(obj).forEach((key) => {
@@ -7,3 +7,4 @@ export const getUrlParam = (obj) => {
   if (!url) return '';
   return url ? `?${url.slice(1)}` : '';
 };
+module.exports.getUrlParam = getUrlParam;

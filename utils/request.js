@@ -1,5 +1,5 @@
 // axios请求
-import axios from 'axios';
+const axios = require('axios');
 
 const showStatus = (status) => {
   let message = '';
@@ -95,7 +95,7 @@ class Interceptors {
 }
 
 // 请求配置
-export class HttpServer {
+class HttpServer {
   static axios;
   // 获取axios实例
   constructor() {
@@ -115,6 +115,4 @@ export class HttpServer {
   }
 }
 
-const http = new HttpServer();
-
-export default http;
+module.exports = new HttpServer();

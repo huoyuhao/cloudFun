@@ -1,20 +1,23 @@
 const express = require('express');
-
-import http from '../utils/request';
-import { getUrlParam } from '../utils/common';
+const config = require('config');
+const http = require('../utils/request.js');
+const { getUrlParam } = require('../utils/common.js');
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
+const miniConfig = config.get('mini');
+
 // 获取列表
 router.get('/login', async (req, res) => {
   const queryData = req.query;
   const { code } = queryData;
+  console.log('code', code);
   // 通过appId code secret验证用户凭证
   const result = await new Promise((resolve) => {
     const api = 'https://api.weixin.qq.com/sns/jscode2session';
     const postData = {
-      appid: 'wx252aafa23cc60538',
-      secret: '00823c3fddcf5f94ff78146a38e5b479',
+      appid: miniConfig.appid,
+      secret: miniConfig.secret,
       // eslint-disable-next-line camelcase
       js_code: code,
       // eslint-disable-next-line camelcase

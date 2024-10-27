@@ -7,5 +7,9 @@
     "port": 3306,
     "user": "root",
     "password": "366351&huo"
+  },
+  "mini": {
+    "appid": "wx252aafa23cc60538",
+    "secret": "00823c3fddcf5f94ff78146a38e5b479"
   }
 }
