@@ -7,4 +7,6 @@
   if (!url) return '';
   return url ? `?${url.slice(1)}` : '';
 };
-module.exports.getUrlParam = getUrlParam;
+module.exports = {
+  getUrlParam
+};
