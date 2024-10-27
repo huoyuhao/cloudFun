@@ -1,6 +1,6 @@
 const express = require('express');
 const config = require('config');
-const axios = require('axios');
+const http = require('../utils/request.js');
 const { getUrlParam } = require('../utils/common.js');
 
 // eslint-disable-next-line new-cap
@@ -24,8 +24,8 @@ router.get('/login', async (req, res) => {
       grant_type: 'authorization_code',
     };
     const str = getUrlParam(postData);
-    axios
-      .get({ url: `${api}${str}` })
+    http
+      .get(`${api}${str}`)
       .then((res) => {
         console.log(111, res);
         resolve({ code: -1, data: res });
