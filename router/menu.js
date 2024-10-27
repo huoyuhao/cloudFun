@@ -19,7 +19,7 @@ router.get('/list', async (req, res) => {
       menuQuery(`select * from menu where id = ${id}`),
       menuQuery(`select * from menu_image where menu_id = ${id}`),
     ]);
-    const images = imageList.map(item => item.content);
+    const images = imageList.map((item) => item.content);
     data = { ...menu[0], images };
   } else {
     const [menus, images] = await Promise.all([
