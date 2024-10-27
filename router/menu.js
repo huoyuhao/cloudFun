@@ -19,7 +19,6 @@ router.get('/list', async (req, res) => {
       menuQuery(`select * from menu where id = ${id}`),
       menuQuery(`select * from menu_image where menu_id = ${id}`),
     ]);
-    console.log(imageList);
     const images = imageList.map(item => item.content);
     data = { ...menu[0], images };
   } else {
@@ -33,7 +32,6 @@ router.get('/list', async (req, res) => {
       if (!obj[item.menu_id].images) obj[item.menu_id].images = [];
       obj[item.menu_id].images.push(item.content);
     });
-    console.log(images);
     data = menus.map((item) => {
       return { ...item, images: (obj[item.id] && obj[item.id].images) || [], };
     });
