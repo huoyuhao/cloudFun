@@ -13,6 +13,9 @@ const {
 router.get('/list', async (req, res) => {
   const queryData = req.query;
   const id = Number(queryData.id);
+  const openid = req.headers['x-user-openid'];
+  const bindOpenid = req.headers['x-user-bind-openid'];
+  console.log(openid, bindOpenid);
   let data = [];
   if (id) {
     const [menu, imageList] = await Promise.all([
