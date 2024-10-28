@@ -29,15 +29,13 @@ router.get('/login', async (req, res) => {
       const { openid } = res;
       // 查询用户是否存在
       const result = await menuDb.select('*').from('user').where('openid', openid, 'eq').queryRow();
+      // 判断是否注册 如果没有存储用户信息
       if (!result) {
-        await menuDb.insert("user").column("user_img", openid).execute();
         const trans = await menuDb.useTransaction();
         try {
           // 存储用户信息
-          await trans.insert("user").column("openid", openid).execute();
-          test
+          await trans.insert("user1").column("openid", openid).execute();
           await trans.commit();
-          console.log('开始执行结束');
           resolve({ code: 0, data: openid });
         } catch (err) {
           await trans.rollback();
@@ -47,9 +45,9 @@ router.get('/login', async (req, res) => {
     .catch((error) => {
       resolve({ code: -1, msg: '用户登录失败', error });
     });
-    // 判断是否注册 如果没有存储用户信息 后期更新用户头像、用户昵称
   });
   res.json(result);
 });
+//  后期更新用户头像、用户昵称
 
 module.exports = router;
