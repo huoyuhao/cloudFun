@@ -34,7 +34,7 @@ router.get('/login', async (req, res) => {
         try {
           // 存储用户信息
           console.log('开始执行事务');
-          await trans.insert("user").column("openid", openid).execute();
+          await trans.insert("user").column("openid", openid);
           await trans.insert("user").column("name", openid);
           await trans.commit();
           console.log('开始执行结束');
