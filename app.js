@@ -12,7 +12,6 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 // 解析请求入参
 app.use(express.json());
-
 app.use('/api/*', async (req, res, next) => {
   // res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With');

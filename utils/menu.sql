@@ -20,11 +20,11 @@ CREATE TABLE `menu_image` (
 
 CREATE TABLE `user` (
   `id` INT(4) PRIMARY KEY AUTO_INCREMENT,
-  `openid` INT(4) DEFAULT NULL COMMENT 'Openid',
+  `openid` varchar(20) DEFAULT NULL COMMENT 'Openid',
   `name` varchar(20) DEFAULT NULL COMMENT '用户昵称',
   `user_img` varchar(100) DEFAULT NULL COMMENT '用户头像',
   `sex` TINYINT(1) DEFAULT NULL COMMENT '性别',
-  `iphone` INT(20) DEFAULT NULL COMMENT '电话',
+  `iphone` varchar(20) DEFAULT NULL COMMENT '电话',
   `bind_openid` varchar(20) DEFAULT NULL COMMENT '绑定用户openid',
   `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modified_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间'
