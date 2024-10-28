@@ -30,18 +30,18 @@ router.get('/login', async (req, res) => {
       // 查询用户是否存在
       const result = await menuDb.select('*').from('user').where('openid', openid, 'eq').queryRow();
       if (!result) {
+        await menuDb.insert("user").column("user_img", openid).execute();
         const trans = await menuDb.useTransaction();
         try {
           // 存储用户信息
           console.log('开始执行事务');
           await trans.insert("user").column("openid", openid);
-          await trans.insert("user").column("name", openid);
+          await trans.insert("user").column("name", "liam").execute();
           await trans.commit();
           console.log('开始执行结束');
           resolve({ code: 0, data: openid });
         } catch (err) {
           await trans.rollback();
-          throw '用户注册失败';
         }
       }
     })
