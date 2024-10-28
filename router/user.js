@@ -1,6 +1,6 @@
 const express = require('express');
 const config = require('config');
-import axios from 'axios';
+const request = require('../utils/request.js');
 const { getUrlParam } = require('../utils/common.js');
 
 // eslint-disable-next-line new-cap
@@ -23,7 +23,16 @@ router.get('/login', async (req, res) => {
       grant_type: 'authorization_code',
     };
     const str = getUrlParam(postData);
-    resolve({ code: -1, data: str });
+    request.get(`${api}${str}`)
+    .then((res) => {
+      console.log(111, res);
+      resolve({ code: -1, data: res });
+    })
+    .catch((error) => {
+      resolve(error);
+    });
+    // 查询用户是否存在
+    // 判断是否注册 如果没有存储用户信息 后期更新用户头像、用户昵称
   });
   res.json(result);
 });
