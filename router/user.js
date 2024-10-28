@@ -29,14 +29,14 @@ router.get('/login', async (req, res) => {
       const { openid } = res;
       // 查询用户是否存在
       const result = await menuDb.select('*').from('user').where('openid', openid, 'eq').queryRow();
-      console.log(result);
       if (!result) {
         const trans = await menuDb.useTransaction();
         try {
           // 存储用户信息
           await trans.insert("user").column("openid", openid).execute();
           await trans.commit();
-          resolve({ code: 0, data: { openid } });
+          const result = await menuDb.select('*').from('user').where('openid', openid, 'eq').queryRow();
+          resolve({ code: 0, data: result });
         } catch (err) {
           await trans.rollback();
           throw '用户注册失败';
