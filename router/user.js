@@ -34,9 +34,8 @@ router.get('/login', async (req, res) => {
         const trans = await menuDb.useTransaction();
         try {
           // 存储用户信息
-          console.log('开始执行事务');
-          await trans.insert("user").column("openid", openid);
-          await trans.insert("user").column("name", "liam").execute();
+          await trans.insert("user").column("openid", openid).execute();
+          test
           await trans.commit();
           console.log('开始执行结束');
           resolve({ code: 0, data: openid });
