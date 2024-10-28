@@ -16,6 +16,7 @@
   "author": "liamhuo",
   "license": "MIT",
   "dependencies": {
+    "ali-mysql-client": "^1.0.7",
     "axios": "^1.7.7",
     "babel-eslint": "^10.1.0",
     "body-parser": "^1.20.2",
