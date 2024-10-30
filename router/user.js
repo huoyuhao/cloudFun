@@ -33,7 +33,7 @@ router.get('/login', async (req, res) => {
         const trans = await menuDb.useTransaction();
         try {
           // 存储用户信息
-          await trans.insert("user").column("openid", openid).execute();
+          await trans.insert('user').column('openid', openid).execute();
           await trans.commit();
           const result = await menuDb.select('*').from('user').where('openid', openid, 'eq').queryRow();
           resolve({ code: 0, data: result });

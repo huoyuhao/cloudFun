@@ -16,3 +16,9 @@
 + 注册小程序
 + 分析前后端页面分工
 
+# 报错
+
+引入axios Must use import to load ES Module
+node版本比较低 axios需要通过commonjs方式引入
+const axios = require('axios/dist/node/axios.cjs');
+
