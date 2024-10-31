@@ -8,6 +8,9 @@ router.get('/list', async (req, res) => {
   const openid = req.headers['x-user-openid'];
   const bindOpenid = req.headers['x-user-bind-openid'];
   let data = [];
+  if (!openid) {
+    return res.json({ code: 200, msg: '未登录', data: null });
+  }
   const menus = await menuDb
     .select('*').from('menu')
     .where('openid', openid, 'eq')
@@ -78,11 +81,11 @@ router.delete('/delete', async (req, res) => {
   if (!id) {
     return res.json({ code: 100, msg: '菜单ID为空', data: null });
   }
-  const result = await menuDb.select('*').from('menu').where('openid', id, 'id').queryRow();
+  const result = await menuDb.select('*').from('menu').where('id', id).queryRow();
   if (!result) {
     return res.json({ code: 100, msg: '菜单ID找不到', data: null });
   } else if (result.openid !== openid) {
-    return res.json({ code: 200, msg: '没有权限', data: null });
+    return res.json({ code: 201, msg: '没有权限', data: null });
   }
   // 连接数据库连接池 获取事务提交 回滚方法
   const trans = await menuDb.useTransaction();
