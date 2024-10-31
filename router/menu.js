@@ -83,15 +83,15 @@ router.delete('/delete', async (req, res) => {
   }
   const result = await menuDb.select('*').from('menu').where('id', id).queryRow();
   if (!result) {
-    return res.json({ code: 100, msg: '菜单ID找不到', data: null });
+    return res.json({ code: 100, msg: '没有找到菜单', data: null });
   } else if (result.openid !== openid) {
     return res.json({ code: 201, msg: '没有权限', data: null });
   }
   // 连接数据库连接池 获取事务提交 回滚方法
   const trans = await menuDb.useTransaction();
   try {
-    await trans.delete('menu').column('id', id).execute();
-    await trans.delete('menu_image').column('menu_id', id).execute();
+    await trans.delete('menu').where('id', id).execute();
+    await trans.delete('menu_image').where('menu_id', id).execute();
     await trans.commit();
     const result = { code: 0, data: 'success' };
     res.json(result);
