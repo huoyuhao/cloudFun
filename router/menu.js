@@ -97,6 +97,7 @@ router.put('/modify', async (req, res) => {
       .column('tag', tag)
       .column('material', material)
       .column('step', step)
+      .where('id', id)
       .execute();
     // 删除所有图片 重新插入
     await trans.delete('menu_image').where('menu_id', id).execute();
