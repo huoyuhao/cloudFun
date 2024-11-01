@@ -51,7 +51,6 @@ router.post('/add', async (req, res) => {
       .column('step', step)
       .column('openid', openid)
       .execute();
-      console.log('menuItem', menuItem);
     const { insertId } = menuItem;
     // 获取菜单id 插入子表
     if (images && images.length > 0) {
@@ -72,6 +71,48 @@ router.post('/add', async (req, res) => {
 });
 
 // 修改菜单 重新提交所有内容
+router.put('/modify', async (req, res) => {
+  const openid = req.headers['x-user-openid'] || '';
+  const data = req.body;
+  const { id, name, condiment, images, tag, step, material } = data;
+  if (!id) {
+    return res.json({ code: 100, msg: '菜单ID为空', data: null });
+  }
+  if (!name || !condiment) {
+    return res.json({ code: 100, msg: '菜单名称和菜单调料不能为空', data: null });
+  }
+  const result = await menuDb.select('*').from('menu').where('id', id).queryRow();
+  if (!result) {
+    return res.json({ code: 100, msg: '没有找到菜单', data: null });
+  } else if (result.openid !== openid) {
+    return res.json({ code: 201, msg: '没有权限', data: null });
+  }
+  // 连接数据库连接池 获取事务提交 回滚方法
+  const trans = await menuDb.useTransaction();
+  try {
+    // 更新用户信息
+    await trans.update('menu')
+      .column('name', name)
+      .column('condiment', condiment)
+      .column('tag', tag)
+      .column('material', material)
+      .column('step', step)
+      .execute();
+    // 删除所有图片 重新插入
+    await trans.delete('menu_image').where('menu_id', id).execute();
+    if (images && images.length > 0) {
+      images.forEach(async (item) => {
+        await trans.insert('menu_image').column('menu_id', id).column('content', item).execute();
+      });
+    }
+    await trans.commit();
+    const result = { code: 0, data: 'success' };
+    res.json(result);
+  } catch (err) {
+    await trans.rollback();
+    res.json({ code: 300, msg: '菜单修改失败', data: null });
+  }
+});
 
 // 删除菜单
 router.delete('/delete', async (req, res) => {
