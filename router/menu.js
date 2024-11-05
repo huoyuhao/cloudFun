@@ -156,10 +156,26 @@ router.delete('/index', async (req, res) => {
   const data = req.query;
   const id = Number(data.id);
   const result = await deleteData(req, 'menu');
-  await menuDb.delete('menu_image').where('menu_id', id).execute();
+  if (result.code === 0) {
+    await menuDb.delete('menu_image').where('menu_id', id).execute();
+  }
   res.json(result);
 });
 
+// 获取订单
+router.get('/order', async (req, res) => {
+  const openid = req.headers['x-user-openid'] || '';
+  const bindOpenid = req.headers['x-user-bind-openid'];
+  if (!openid) {
+    return res.json({ code: 200, msg: '未登录', data: null });
+  }
+  const data = await menuDb
+    .select('*').from('menu_order')
+    .where('openid', openid, 'eq')
+    .where('openid', bindOpenid, 'eq', 'ifHave', 'or')
+    .queryList();
+  res.json({ code: 0, data });
+});
 // 新增订单
 router.post('/order', async (req, res) => {
   const openid = req.headers['x-user-openid'] || '';
@@ -217,6 +233,5 @@ router.put('/order', async (req, res) => {
     await trans.rollback();
     res.json({ code: 300, msg: '完结失败', data: null });
   }
-  // 修改菜单销量
 });
 module.exports = router;
