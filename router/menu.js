@@ -3,13 +3,11 @@ const express = require('express');
 const router = express.Router();
 const { menuDb } = require('../utils/ali-mysql');
 
-const checkDeleteData = async(req, tableName) => {
+const checkData = async(req, tableName, id) => {
   const openid = req.headers['x-user-openid'];
-  const data = req.query;
-  const id = Number(data.id);
   let result;
   if (!id) {
-    return res.json({ code: 100, msg: 'ID为空', data: null });
+    result = { code: 100, msg: 'ID为空', data: null };
   }
   const res = await menuDb.select('*').from(tableName).where('id', id).queryRow();
   if (!res) {
@@ -17,6 +15,15 @@ const checkDeleteData = async(req, tableName) => {
   } else if (result.openid !== openid) {
     result = { code: 201, msg: '没有权限', data: null };
   } else {
+    result = { code: 0, data: res };
+  }
+  return result;
+};
+const deleteData = async(req, tableName) => {
+  const data = req.query;
+  const id = Number(data.id);
+  let result = checkData(req, tableName, id);
+  if (result.code === 0) {
     // 连接数据库连接池 获取事务提交 回滚方法
     const trans = await menuDb.useTransaction();
     try {
@@ -56,16 +63,18 @@ router.get('/index', async (req, res) => {
   data = menus.map((item) => {
     return { ...item, images: (obj[item.id] && obj[item.id].images) || [], };
   });
-  const result = { code: 0, data };
-  res.json(result);
+  res.json({ code: 0, data });
 });
 // 创建菜单 事务性提交
 router.post('/index', async (req, res) => {
   const openid = req.headers['x-user-openid'] || '';
   const data = req.body;
   const { name, condiment, images, tag, step, material } = data;
-  if (!name || !condiment) {
-    return res.json({ code: 100, msg: '菜单名称和菜单调料不能为空', data: null });
+  if (!name) {
+    return res.json({ code: 300, msg: '名称为空', data: null });
+  }
+  if (!condiment) {
+    return res.json({ code: 300, msg: '调料为空', data: null });
   }
   // 连接数据库连接池 获取事务提交 回滚方法
   const trans = await menuDb.useTransaction();
@@ -91,8 +100,7 @@ router.post('/index', async (req, res) => {
       });
     }
     await trans.commit();
-    const result = { code: 0, data: 'success' };
-    res.json(result);
+    res.json({ code: 0, data: 'success' });
   } catch (err) {
     await trans.rollback();
     res.json({ code: 300, msg: '创建失败', data: null });
@@ -101,20 +109,17 @@ router.post('/index', async (req, res) => {
 
 // 修改菜单 重新提交所有内容
 router.put('/index', async (req, res) => {
-  const openid = req.headers['x-user-openid'] || '';
   const data = req.body;
   const { id, name, condiment, images, tag, step, material } = data;
-  if (!id) {
-    return res.json({ code: 100, msg: '菜单ID为空', data: null });
+  if (!name) {
+    return res.json({ code: 300, msg: '名称为空', data: null });
   }
-  if (!name || !condiment) {
-    return res.json({ code: 100, msg: '菜单名称和菜单调料不能为空', data: null });
+  if (!condiment) {
+    return res.json({ code: 300, msg: '调料为空', data: null });
   }
-  const result = await menuDb.select('*').from('menu').where('id', id).queryRow();
-  if (!result) {
-    return res.json({ code: 100, msg: '没有找到菜单', data: null });
-  } else if (result.openid !== openid) {
-    return res.json({ code: 201, msg: '没有权限', data: null });
+  const result = checkData(req, 'menu', id);
+  if (result.code !== 0) {
+    return res.json(result);
   }
   // 连接数据库连接池 获取事务提交 回滚方法
   const trans = await menuDb.useTransaction();
@@ -140,7 +145,7 @@ router.put('/index', async (req, res) => {
     res.json(result);
   } catch (err) {
     await trans.rollback();
-    res.json({ code: 300, msg: '菜单修改失败', data: null });
+    res.json({ code: 300, msg: '修改失败', data: null });
   }
 });
 
@@ -148,7 +153,7 @@ router.put('/index', async (req, res) => {
 router.delete('/index', async (req, res) => {
   const data = req.query;
   const id = Number(data.id);
-  const result = checkDeleteData(req, 'menu');
+  const result = deleteData(req, 'menu');
   await menuDb.delete('menu_image').where('menu_id', id).execute();
   res.json(result);
 });
@@ -159,7 +164,7 @@ router.post('/order', async (req, res) => {
   const data = req.body;
   const { menuIds, text } = data;
   if (!menuIds) {
-    return res.json({ code: 100, msg: '订单不能为空', data: null });
+    return res.json({ code: 100, msg: '菜品为空', data: null });
   }
   // 连接数据库连接池 获取事务提交 回滚方法
   const trans = await menuDb.useTransaction();
@@ -168,7 +173,7 @@ router.post('/order', async (req, res) => {
     await trans.insert('menu_order')
       .column('menu_ids', menuIds)
       .column('text', text || '')
-      .column('status', '待下单')
+      .column('status', '已下单')
       .column('openid', openid)
       .execute();
     await trans.commit();
@@ -182,56 +187,33 @@ router.post('/order', async (req, res) => {
 
 // 删除订单
 router.delete('/order', async (req, res) => {
-  const openid = req.headers['x-user-openid'];
-  const data = req.query;
-  const id = Number(data.id);
-  if (!id) {
-    return res.json({ code: 100, msg: '订单ID为空', data: null });
-  }
-  const result = await menuDb.select('*').from('menu_order').where('id', id).queryRow();
-  if (!result) {
-    return res.json({ code: 100, msg: '没有找到订单', data: null });
-  } else if (result.openid !== openid) {
-    return res.json({ code: 201, msg: '没有权限', data: null });
-  }
-  // 连接数据库连接池 获取事务提交 回滚方法
-  const trans = await menuDb.useTransaction();
-  try {
-    await trans.delete('menu_order').where('id', id).execute();
-    await trans.commit();
-    const result = { code: 0, data: 'success' };
-    res.json(result);
-  } catch (err) {
-    await trans.rollback();
-    res.json({ code: 300, msg: '删除失败', data: null });
-  }
+  const result = deleteData(req, 'menu_order');
+  res.json(result);
 });
 
 // 结束订单
 router.put('/order', async (req, res) => {
   // 修改订单状态
-  const openid = req.headers['x-user-openid'];
-  const data = req.query;
-  const id = Number(data.id);
-  if (!id) {
-    return res.json({ code: 100, msg: '订单ID为空', data: null });
-  }
-  const result = await menuDb.select('*').from('menu_order').where('id', id).queryRow();
-  if (!result) {
-    return res.json({ code: 100, msg: '没有找到订单', data: null });
-  } else if (result.openid !== openid) {
-    return res.json({ code: 201, msg: '没有权限', data: null });
+  const data = req.body;
+  const { id } = data;
+  const result = checkData(req, 'menu_order', id);
+  if (result.code !== 0) {
+    return res.json(result);
   }
   // 连接数据库连接池 获取事务提交 回滚方法
   const trans = await menuDb.useTransaction();
   try {
-    await trans.delete('menu_order').where('id', id).execute();
+    await trans.update('menu_order')
+      .where('id', id)
+      .column('status', '已完成')
+      .execute();
+    // 获取tag数据 累加销量
     await trans.commit();
     const result = { code: 0, data: 'success' };
     res.json(result);
   } catch (err) {
     await trans.rollback();
-    res.json({ code: 300, msg: '删除失败', data: null });
+    res.json({ code: 300, msg: '完结失败', data: null });
   }
   // 修改菜单销量
 });
