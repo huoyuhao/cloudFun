@@ -12,7 +12,7 @@ const checkData = async(req, tableName, id) => {
     const res = await menuDb.select('*').from(tableName).where('id', id).queryRow();
     if (!res) {
       result = { code: 100, msg: '没有找到', data: null };
-    } else if (result.openid !== openid) {
+    } else if (res.openid !== openid) {
       result = { code: 201, msg: '没有权限', data: null };
     } else {
       result = { code: 0, data: res };
@@ -119,7 +119,6 @@ router.put('/index', async (req, res) => {
     return res.json({ code: 300, msg: '调料为空', data: null });
   }
   const result = await checkData(req, 'menu', id);
-  console.log(222, result);
   if (result.code !== 0) {
     return res.json(result);
   }
