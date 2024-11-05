@@ -6,6 +6,7 @@ CREATE TABLE `menu` (
   `material` varchar(200) DEFAULT NULL COMMENT '材料',
   `step` varchar(2000) DEFAULT NULL COMMENT '步骤',
   `openid` varchar(30) DEFAULT NULL COMMENT '用户ID',
+  `sale_count` INT(5) DEFAULT NULL COMMENT '销售额',
   `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modified_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='菜单表';
@@ -17,6 +18,16 @@ CREATE TABLE `menu_image` (
   `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modified_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='菜单图片表';
+
+CREATE TABLE `menu_order` (
+  `id` INT(4) PRIMARY KEY AUTO_INCREMENT,
+  `menu_ids` varchar(300) DEFAULT NULL COMMENT '订单的菜单ID',
+  `openid` varchar(30) DEFAULT NULL COMMENT '订单创建人ID',
+  `status` varchar(10) DEFAULT NULL COMMENT '订单状态',
+  `text` varchar(300) DEFAULT NULL COMMENT '订单备注',
+  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `modified_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='菜单订单表';
 
 
 CREATE TABLE `user` (
