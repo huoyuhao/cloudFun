@@ -36,6 +36,7 @@ const deleteData = async(req, tableName) => {
       result = { code: 300, msg: '删除失败', data: null };
     }
   }
+  console.log(111, result);
   return result;
 };
 
