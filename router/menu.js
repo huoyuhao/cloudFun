@@ -18,6 +18,7 @@ const checkData = async(req, tableName, id) => {
       result = { code: 0, data: res };
     }
   }
+  console.log(222, result);
   return result;
 };
 const deleteData = async(req, tableName) => {
@@ -119,6 +120,7 @@ router.put('/index', async (req, res) => {
     return res.json({ code: 300, msg: '调料为空', data: null });
   }
   const result = checkData(req, 'menu', id);
+  console.log(111, result);
   if (result.code !== 0) {
     return res.json(result);
   }
