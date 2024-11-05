@@ -154,7 +154,7 @@ router.put('/index', async (req, res) => {
 router.delete('/index', async (req, res) => {
   const data = req.query;
   const id = Number(data.id);
-  const result = deleteData(req, 'menu');
+  const result = await deleteData(req, 'menu');
   await menuDb.delete('menu_image').where('menu_id', id).execute();
   res.json(result);
 });
@@ -188,7 +188,7 @@ router.post('/order', async (req, res) => {
 
 // 删除订单
 router.delete('/order', async (req, res) => {
-  const result = deleteData(req, 'menu_order');
+  const result = await deleteData(req, 'menu_order');
   res.json(result);
 });
 
