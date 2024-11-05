@@ -8,14 +8,15 @@ const checkData = async(req, tableName, id) => {
   let result;
   if (!id) {
     result = { code: 100, msg: 'ID为空', data: null };
-  }
-  const res = await menuDb.select('*').from(tableName).where('id', id).queryRow();
-  if (!res) {
-    result = { code: 100, msg: '没有找到', data: null };
-  } else if (result.openid !== openid) {
-    result = { code: 201, msg: '没有权限', data: null };
   } else {
-    result = { code: 0, data: res };
+    const res = await menuDb.select('*').from(tableName).where('id', id).queryRow();
+    if (!res) {
+      result = { code: 100, msg: '没有找到', data: null };
+    } else if (result.openid !== openid) {
+      result = { code: 201, msg: '没有权限', data: null };
+    } else {
+      result = { code: 0, data: res };
+    }
   }
   return result;
 };
