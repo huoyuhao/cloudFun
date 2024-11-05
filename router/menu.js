@@ -18,13 +18,12 @@ const checkData = async(req, tableName, id) => {
       result = { code: 0, data: res };
     }
   }
-  console.log(222, result);
   return result;
 };
 const deleteData = async(req, tableName) => {
   const data = req.query;
   const id = Number(data.id);
-  let result = checkData(req, tableName, id);
+  let result = await checkData(req, tableName, id);
   if (result.code === 0) {
     // 连接数据库连接池 获取事务提交 回滚方法
     const trans = await menuDb.useTransaction();
@@ -119,8 +118,8 @@ router.put('/index', async (req, res) => {
   if (!condiment) {
     return res.json({ code: 300, msg: '调料为空', data: null });
   }
-  const result = checkData(req, 'menu', id);
-  console.log(111, result);
+  const result = await checkData(req, 'menu', id);
+  console.log(222, result);
   if (result.code !== 0) {
     return res.json(result);
   }
@@ -199,7 +198,7 @@ router.put('/order', async (req, res) => {
   // 修改订单状态
   const data = req.body;
   const { id } = data;
-  const result = checkData(req, 'menu_order', id);
+  const result = await checkData(req, 'menu_order', id);
   if (result.code !== 0) {
     return res.json(result);
   }
