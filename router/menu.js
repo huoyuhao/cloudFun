@@ -102,7 +102,7 @@ router.post('/index', async (req, res) => {
       });
     }
     await trans.commit();
-    res.json({ code: 0, data: 'success' });
+    res.json({ code: 0, data: insertId });
   } catch (err) {
     await trans.rollback();
     res.json({ code: 300, msg: '创建失败', data: null });
@@ -166,11 +166,14 @@ router.delete('/index', async (req, res) => {
 router.get('/order', async (req, res) => {
   const openid = req.headers['x-user-openid'] || '';
   const bindOpenid = req.headers['x-user-bind-openid'];
+  const queryData = req.query;
+  const id = Number(queryData.id);
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
   const data = await menuDb
     .select('*').from('menu_order')
+    .where('id', id, 'eq', 'ifHave')
     .where('openid', openid, 'eq')
     .where('openid', bindOpenid, 'eq', 'ifHave', 'or')
     .queryList();
@@ -188,15 +191,15 @@ router.post('/order', async (req, res) => {
   const trans = await menuDb.useTransaction();
   try {
     // 存储用户信息
-    await trans.insert('menu_order')
+    const orderItem = await trans.insert('menu_order')
       .column('menu_ids', menuIds)
       .column('text', text || '')
       .column('status', '已下单')
       .column('openid', openid)
       .execute();
+    const { insertId } = orderItem;
     await trans.commit();
-    const result = { code: 0, data: 'success' };
-    res.json(result);
+    res.json({ code: 0, data: insertId });
   } catch (err) {
     await trans.rollback();
     res.json({ code: 300, msg: '创建失败', data: null });
