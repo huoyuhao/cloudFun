@@ -36,7 +36,6 @@ const deleteData = async(req, tableName) => {
       result = { code: 300, msg: '删除失败', data: null };
     }
   }
-  console.log(111, result);
   return result;
 };
 
@@ -171,13 +170,17 @@ router.get('/order', async (req, res) => {
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
-  const data = await menuDb
-    .select('*').from('menu_order')
-    .where('id', id, 'eq', 'ifHave')
-    .where('openid', openid, 'eq')
-    .where('openid', bindOpenid, 'eq', 'ifHave', 'or')
-    .queryList();
-  res.json({ code: 0, data });
+  if (id) {
+    let result = await checkData(req, 'menu_order', id);
+    res.json(result);
+  } else {
+    const data = await menuDb
+      .select('*').from('menu_order')
+      .where('openid', openid, 'eq')
+      .where('openid', bindOpenid, 'eq', 'ifHave', 'or')
+      .queryList();
+    res.json({ code: 0, data });
+  }
 });
 // 新增订单
 router.post('/order', async (req, res) => {
