@@ -166,7 +166,7 @@ router.delete('/index', async (req, res) => {
 router.get('/order', async (req, res) => {
   const openid = req.headers['x-user-openid'] || '';
   const bindOpenid = req.headers['x-user-bind-openid'];
-  const queryData = req.query;
+  const queryData = req.query || {};
   const id = Number(queryData.id);
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
