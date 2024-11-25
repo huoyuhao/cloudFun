@@ -1,4 +1,5 @@
-import { isArray, isObject } from 'lodash';
+const dayjs = require('dayjs');
+const _ = require('lodash');
 
 const getUrlParam = (obj) => {
   let url = '';
@@ -16,14 +17,18 @@ const toHump = (name) => {
 };
 const transDataItem = (data) => {
   const obj = {};
-  if (!isObject(data)) return data;
+  if (!_.isObject(data)) return data;
   Object.keys(data).forEach((key) => {
-    obj[toHump(key)] = data[key];
+    if (['created_time', 'created_time'].includes(key)) {
+      obj[toHump(key)] = dayjs(data[key]).format('YYYY-MM-DD HH:mm:ss');
+    } else {
+      obj[toHump(key)] = data[key];
+    }
   });
   return obj;
 };
 const transData = (data) => {
-  if (isArray(data)) {
+  if (_.isArray(data)) {
     return data.map((item) => transDataItem(item));
   }
   return transDataItem(data);
