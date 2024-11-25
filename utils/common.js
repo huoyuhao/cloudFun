@@ -19,7 +19,7 @@ const transDataItem = (data) => {
   const obj = {};
   if (!_.isObject(data)) return data;
   Object.keys(data).forEach((key) => {
-    if (['created_time', 'created_time'].includes(key)) {
+    if (['created_time', 'modified_time'].includes(key)) {
       obj[toHump(key)] = dayjs(data[key]).format('YYYY-MM-DD HH:mm:ss');
     } else {
       obj[toHump(key)] = data[key];

@@ -180,7 +180,7 @@ router.get('/order', async (req, res) => {
       .where('openid', openid, 'eq')
       .where('openid', bindOpenid, 'eq', 'ifHave', 'or')
       .queryList();
-    res.json({ code: 0, data });
+    res.json({ code: 0, data: transData(data) });
   }
 });
 // 新增订单
