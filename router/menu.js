@@ -2,6 +2,7 @@ const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
 const { menuDb } = require('../utils/ali-mysql');
+const { transData } = require('../utils/common.js');
 
 const checkData = async(req, tableName, id) => {
   const openid = req.headers['x-user-openid'];
@@ -64,7 +65,7 @@ router.get('/index', async (req, res) => {
   data = menus.map((item) => {
     return { ...item, images: (obj[item.id] && obj[item.id].images) || [], };
   });
-  res.json({ code: 0, data });
+  res.json({ code: 0, data: transData(data) });
 });
 // 创建菜单 事务性提交
 router.post('/index', async (req, res) => {
@@ -171,7 +172,7 @@ router.get('/order', async (req, res) => {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
   if (id) {
-    let result = await checkData(req, 'menu_order', id);
+    const result = await checkData(req, 'menu_order', id);
     res.json(result);
   } else {
     const data = await menuDb
