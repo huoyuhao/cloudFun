@@ -115,7 +115,7 @@ router.post('/collect', async (req, res) => {
       .from('friend_browse')
       .where('user_id', userInfo.id)
       .where('operate_user_id', id)
-      .column('operate_type', '收藏')
+      .where('operate_type', '收藏')
       .queryRow();
     console.log('collectInfo', collectInfo);  
     if (collectInfo) {
