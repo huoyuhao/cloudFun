@@ -46,13 +46,28 @@ router.get('/detail', async (req, res) => {
   // 如果没有id 返回个人信息，有id 返回用户详情
   if (id && userInfo && userInfo.id !== id) {
     const userItem = await menuDb.select('*').from('friend_user').where('id', id).queryRow();
-    // 插入用户访问详情记录
-    await menuDb.insert('friend_browse')
-      .column('openid', openid)
-      .column('user_id', userInfo.id)
-      .column('operate_user_id', id)
-      .column('operate_type', '浏览')
-      .execute();
+    // 判断是否已经浏览过
+    const browseInfo = await menuDb
+      .select('id, operate_number')
+      .from('friend_browse')
+      .where('openid', openid)
+      .where('operate_user_id', id)
+      .queryRow();
+    if (browseInfo) {
+      await menuDb.update('friend_browse')
+        .column('operate_number', browseInfo.operate_number + 1)
+        .where('id', browseInfo.id)
+        .execute();
+    } else {
+      // 插入用户访问详情记录
+      await menuDb.insert('friend_browse')
+        .column('openid', openid)
+        .column('user_id', userInfo.id)
+        .column('operate_user_id', id)
+        .column('operate_type', '浏览')
+        .column('operate_number', 1)
+        .execute();
+    }
     // 获取用户是否被收藏
     const collectInfo = await menuDb
       .select('id')
@@ -117,11 +132,11 @@ router.post('/collect', async (req, res) => {
       .where('operate_user_id', id)
       .where('operate_type', '收藏')
       .queryRow();
-    console.log('collectInfo', collectInfo);  
+    console.log('collectInfo', collectInfo);
     if (collectInfo) {
       try {
         await menuDb.delete('friend_browse').where('id', collectInfo.id).execute();
-        res.json({ code: 0, data: null });
+        res.json({ code: 0, data: '取消收藏成功' });
       } catch (err) {
         res.json({ code: 300, msg: '取消失败', data: null });
       }
@@ -134,13 +149,13 @@ router.post('/collect', async (req, res) => {
           .column('operate_user_id', id)
           .column('operate_type', '收藏')
           .execute();
-        res.json({ code: 0, data: null });
+        res.json({ code: 0, data: '收藏成功' });
       } catch (err) {
         res.json({ code: 300, msg: '收藏失败', data: null });
       }
     }
   }
-  res.json({ code: 0, data: null });
+  res.json({ code: 0, data: '无法收藏个人' });
 });
 
 // 获取个人中心详情

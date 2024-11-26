@@ -24,13 +24,14 @@ CREATE TABLE `friend_user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';
 
 
+-- 1:浏览 2:收藏
 CREATE TABLE `friend_browse` (
   `id` INT(4) PRIMARY KEY AUTO_INCREMENT,
   `openid` varchar(30) DEFAULT NULL COMMENT 'Openid',
   `user_id` INT(4) DEFAULT NULL COMMENT '用户id',
   `operate_user_id` INT(4) DEFAULT NULL COMMENT '被操作用户id',
   `operate_type` varchar(20) DEFAULT NULL COMMENT '操作类型',
-  -- 1:浏览 2:收藏
+  `operate_number` INT(4) DEFAULT NULL COMMENT '浏览次数',
   `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modified_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户操作表';
