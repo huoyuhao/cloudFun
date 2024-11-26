@@ -81,7 +81,7 @@ router.post('/index', async (req, res) => {
   const updateObj = {};
   userArr.forEach((key) => {
     if (data[toHump(key)]) {
-      updateObj[key] = data[key];
+      updateObj[key] = data[toHump(key)];
     }
   });
   try {
