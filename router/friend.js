@@ -9,6 +9,7 @@ const userArr = [
   'location', 'residence_place', 'annual_income', 'home_car', 'weixin', 'desc',
   'license', 'child', 'cohabit', 'iphone', 'expectation_desc'
 ];
+const pageSize = 10;
 // 获取交友列表
 router.get('/list', async (req, res) => {
   const openid = req.headers['x-user-openid'];
@@ -29,7 +30,7 @@ router.get('/list', async (req, res) => {
     .where('location', city, 'like', 'ifHave', 'and')
     .where('sex', sex, 'eq', 'ifHave', 'and')
     .orderby('modified_time desc')
-    .queryListWithPaging(page, 2);
+    .queryListWithPaging(page, pageSize);
   const { pageIndex, pageCount, rows } = userData;
   res.json({ code: 0, data: { pageIndex, pageCount, list: transData(rows) } });
 });
@@ -52,8 +53,10 @@ router.get('/detail', async (req, res) => {
       .from('friend_browse')
       .where('openid', openid)
       .where('operate_user_id', id)
+      .where('operate_type', '浏览')
       .queryRow();
     if (browseInfo) {
+      // 浏览过 更新浏览次数
       await menuDb.update('friend_browse')
         .column('operate_number', browseInfo.operate_number + 1)
         .where('id', browseInfo.id)
@@ -161,6 +164,8 @@ router.post('/collect', async (req, res) => {
 // 获取个人中心详情
 router.get('/user/info', async (req, res) => {
   const openid = req.headers['x-user-openid'];
+  const data = req.query;
+  const page = Number(data.page) || 1;
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
@@ -201,41 +206,22 @@ router.get('/user/info', async (req, res) => {
 router.get('/user/browse', async (req, res) => {
   const openid = req.headers['x-user-openid'];
   const data = req.query;
-  const { type } = data || {};
+  const { type, isOperate } = data || {};
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
-  const result = {};
   const userInfo = await menuDb.select('id').from('friend_user').where('openid', openid).queryRow();
-  // 看过我的
-  if (type === '浏览') {
-    // 统计浏览数量 合并
-    result.browseList = await menuDb
-      .select('*')
+  // 查询条件的key 和 查询结果的key type 收藏/浏览
+  let findKey = isOperate === 'true' ? 'user_id' : 'operate_user_id';
+  let selectKey = isOperate === 'true' ? 'operate_user_id' : 'user_id';
+  const list = await menuDb
+      .select(selectKey)
       .from('friend_browse')
-      .where('user_id', userInfo.id)
-      .where('operate_type', '浏览')
+      .where(findKey, userInfo.id)
+      .where('operate_type', type)
       .queryList();
-    result.browsedList = await menuDb
-      .select('*')
-      .from('friend_browse')
-      .where('operate_user_id', userInfo.id)
-      .where('operate_type', '浏览')
-      .queryList();
-  } else {
-    result.collectList = await menuDb
-      .select('*')
-      .from('friend_browse')
-      .where('user_id', userInfo.id)
-      .where('operate_type', '收藏')
-      .queryList();
-    result.collectedList = await menuDb
-      .select('*')
-      .from('friend_browse')
-      .where('operate_user_id', userInfo.id)
-      .where('operate_type', '收藏')
-      .queryList();
-  }
-  res.json({ code: 0, data: result });
+  const idArr = list.map(e => e.id);
+  console.log('idArr', idArr);
+  res.json({ code: 0, data: idArr });
 });
 module.exports = router;
