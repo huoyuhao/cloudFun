@@ -23,14 +23,15 @@ router.get('/list', async (req, res) => {
   // 定时任务 每天获取最近90天 用户详情访问量 统计到user表 hotNumber字段
   // age 根据年龄和用户本人差距 需要判断用户填写个人信息
   // 查询条件
-  const userList = await menuDb
+  const userData = await menuDb
     .select('*').from('friend_user')
     .where('location', province, 'like', 'ifHave')
     .where('location', city, 'like', 'ifHave', 'and')
     .where('sex', sex, 'eq', 'ifHave', 'and')
     .orderby('modified_time desc')
     .queryListWithPaging(page, 2);
-  res.json({ code: 0, data: transData(userList) });
+  const { pageIndex, pageCount, rows } = userData;
+  res.json({ code: 0, data: { pageIndex, pageCount, list: transData(rows) } });
 });
 
 // 获取交友列表
@@ -140,29 +141,75 @@ router.get('/user/info', async (req, res) => {
   }
   const userInfo = await menuDb.select('id, name, user_img').from('friend_user').where('openid', openid).queryRow();
   // 看过我的
-  userInfo.browseNum = await menuDb
+  userInfo.browsedNum = await menuDb
     .select('count(1)')
     .from('friend_browse')
     .where('operate_user_id', userInfo.id)
     .where('operate_type', '浏览')
     .queryValue();
-    // 我被收藏的数量
-    userInfo.collectedNum = await menuDb
+  // 我看过的
+  userInfo.browseNum = await menuDb
+    .select('count(1)')
+    .from('friend_browse')
+    .where('user_id', userInfo.id)
+    .where('operate_type', '浏览')
+    .queryValue();
+  // 我收藏别人的数量
+  userInfo.collectNum = await menuDb
+    .select('count(1)')
+    .from('friend_browse')
+    .where('user_id', userInfo.id)
+    .where('operate_type', '收藏')
+    .queryValue();
+  // 我被收藏的数量
+  userInfo.collectedNum = await menuDb
     .select('count(1)')
     .from('friend_browse')
     .where('operate_user_id', userInfo.id)
     .where('operate_type', '收藏')
     .queryValue();
-    // 我收藏别人的数量
-    userInfo.collectNum = await menuDb
-      .select('count(1)')
-      .from('friend_browse')
-      .where('user_id', userInfo.id)
-      .where('operate_type', '收藏')
-      .queryValue();
-      userInfo;
   // 如果没有id 返回个人信息，有id 返回用户详情
   res.json({ code: 0, data: transData(userInfo) });
 });
 
+// 获取 收藏、被浏览详情
+router.get('/user/browse', async (req, res) => {
+  const openid = req.headers['x-user-openid'];
+  const data = req.query;
+  const { type } = data || {};
+  if (!openid) {
+    return res.json({ code: 200, msg: '未登录', data: null });
+  }
+  const result = {};
+  const userInfo = await menuDb.select('id').from('friend_user').where('openid', openid).queryRow();
+  // 看过我的
+  if (type === '浏览') {
+    result.browseList = await menuDb
+      .select('*')
+      .from('friend_browse')
+      .where('user_id', userInfo.id)
+      .where('operate_type', '浏览')
+      .queryList();
+    result.browsedList = await menuDb
+      .select('*')
+      .from('friend_browse')
+      .where('operate_user_id', userInfo.id)
+      .where('operate_type', '浏览')
+      .queryList();
+  } else {
+    result.collectList = await menuDb
+      .select('*')
+      .from('friend_browse')
+      .where('user_id', userInfo.id)
+      .where('operate_type', '收藏')
+      .queryList();
+    result.collectedList = await menuDb
+      .select('*')
+      .from('friend_browse')
+      .where('operate_user_id', userInfo.id)
+      .where('operate_type', '收藏')
+      .queryList();
+  }
+  res.json({ code: 0, data: result });
+});
 module.exports = router;
