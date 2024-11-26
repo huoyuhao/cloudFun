@@ -164,8 +164,6 @@ router.post('/collect', async (req, res) => {
 // 获取个人中心详情
 router.get('/user/info', async (req, res) => {
   const openid = req.headers['x-user-openid'];
-  const data = req.query;
-  const page = Number(data.page) || 1;
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
@@ -207,6 +205,7 @@ router.get('/user/browse', async (req, res) => {
   const openid = req.headers['x-user-openid'];
   const data = req.query;
   const { type, isOperate } = data || {};
+  const page = Number(data.page) || 1;
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
@@ -214,14 +213,17 @@ router.get('/user/browse', async (req, res) => {
   // 查询条件的key 和 查询结果的key type 收藏/浏览
   let findKey = isOperate === 'true' ? 'user_id' : 'operate_user_id';
   let selectKey = isOperate === 'true' ? 'operate_user_id' : 'user_id';
-  const list = await menuDb
+  const browseData = await menuDb
       .select(selectKey)
       .from('friend_browse')
       .where(findKey, userInfo.id)
       .where('operate_type', type)
-      .queryList();
-  const idArr = list.map(e => e.id);
-  console.log('idArr', idArr);
-  res.json({ code: 0, data: idArr });
+      .orderby('modified_time desc')
+      .queryListWithPaging(page, pageSize);
+  const { pageIndex, pageCount, rows } = browseData;
+  const idArr = rows.map(e => e.id);
+
+  console.log(findKey, idArr, browseData);
+  res.json({ code: 0, data: { pageIndex, pageCount, list: idArr } });
 });
 module.exports = router;
