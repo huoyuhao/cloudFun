@@ -3,6 +3,7 @@ const config = require('config');
 const path = require('path');
 const bodyParser = require('body-parser');
 const routes = require('./router/index.js');
+const { initScheduleTask } = require('./task/friend.js');
 
 const app = express();
 const port = config.get('systemConfig.port');
@@ -29,6 +30,9 @@ app.get('/checkHealth', (req, res) => {
 });
 // api请求路由
 routes(app);
+
+// 初始化定时任务
+initScheduleTask();
 
 // 需要处理其他api请求没有匹配到路径的数据 返回404
 app.use((req, res) => {

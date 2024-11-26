@@ -210,8 +210,8 @@ router.get('/user/browse', async (req, res) => {
   }
   const userInfo = await menuDb.select('id').from('friend_user').where('openid', openid).queryRow();
   // 查询条件的key 和 查询结果的key type 收藏/浏览
-  let findKey = isOperate === 'true' ? 'user_id' : 'operate_user_id';
-  let selectKey = isOperate === 'true' ? 'operate_user_id' : 'user_id';
+  const findKey = isOperate === 'true' ? 'user_id' : 'operate_user_id';
+  const selectKey = isOperate === 'true' ? 'operate_user_id' : 'user_id';
   const browseData = await menuDb
       .select(selectKey)
       .from('friend_browse')
@@ -220,7 +220,7 @@ router.get('/user/browse', async (req, res) => {
       .orderby('modified_time desc')
       .queryListWithPaging(page, pageSize);
   const { pageIndex, pageCount, rows } = browseData;
-  const idArr = rows.map(e => e[selectKey]);
+  const idArr = rows.map((e) => e[selectKey]);
   const userList = await menuDb
     .select('*')
     .from('friend_user')
