@@ -135,7 +135,6 @@ router.post('/collect', async (req, res) => {
       .where('operate_user_id', id)
       .where('operate_type', '收藏')
       .queryRow();
-    console.log('collectInfo', collectInfo);
     if (collectInfo) {
       try {
         await menuDb.delete('friend_browse').where('id', collectInfo.id).execute();
@@ -221,9 +220,12 @@ router.get('/user/browse', async (req, res) => {
       .orderby('modified_time desc')
       .queryListWithPaging(page, pageSize);
   const { pageIndex, pageCount, rows } = browseData;
-  const idArr = rows.map(e => e.id);
-
-  console.log(findKey, idArr, browseData);
-  res.json({ code: 0, data: { pageIndex, pageCount, list: idArr } });
+  const idArr = rows.map(e => e[selectKey]);
+  const userList = await menuDb
+    .select('*')
+    .from('friend_user')
+    .where('id', idArr, 'in')
+    .queryList();
+  res.json({ code: 0, data: { pageIndex, pageCount, list: transData(userList) } });
 });
 module.exports = router;
