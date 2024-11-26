@@ -37,5 +37,6 @@ const transData = (data) => {
 };
 module.exports = {
   getUrlParam,
-  transData
+  transData,
+  toHump
 };

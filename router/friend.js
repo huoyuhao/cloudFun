@@ -2,8 +2,13 @@ const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
 const { menuDb } = require('../utils/ali-mysql');
-const { transData } = require('../utils/common.js');
+const { transData, toHump } = require('../utils/common.js');
 
+const userArr = [
+  'name', 'user_img', 'sex', 'birth_date', 'height', 'qualification', 'career',
+  'location', 'residence_place', 'annual_income', 'home_car', 'weixin', 'desc',
+  'license', 'child', 'cohabit', 'iphone', 'expectation_desc'
+];
 // 获取交友列表
 router.get('/list', async (req, res) => {
   const openid = req.headers['x-user-openid'];
@@ -38,7 +43,7 @@ router.get('/detail', async (req, res) => {
   }
   const userInfo = await menuDb.select('*').from('friend_user').where('openid', openid).queryRow();
   // 如果没有id 返回个人信息，有id 返回用户详情
-  if (id && userInfo.id !== id) {
+  if (id && userInfo && userInfo.id !== id) {
     const userItem = await menuDb.select('*').from('friend_user').where('id', id).queryRow();
     // 插入用户访问详情记录
     menuDb.insert('friend_Browse')
@@ -64,6 +69,7 @@ router.get('/detail', async (req, res) => {
 // 新增用户
 router.post('/index', async (req, res) => {
   const openid = req.headers['x-user-openid'];
+  const data = req.body;
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
@@ -73,7 +79,19 @@ router.post('/index', async (req, res) => {
     // 用户信息为空 插入一条数据 然后更新传入字段
     await menuDb.insert('friend_user').column('openid', openid).execute();
   }
-  res.json({ code: 0, data: null });
+  const updateObj = {};
+  userArr.forEach((key) => {
+    if (data[toHump(key)]) {
+      updateObj[key] = data[key];
+    }
+  });
+  console.log('updateObj', updateObj);
+  const result = await menuDb
+    .update('friend_user', updateObj)
+    .where('openid', openid)
+    .execute();
+  // 获取更新数据 进行更新
+  res.json({ code: 0, data: result });
 });
 
 // 收藏
