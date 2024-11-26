@@ -47,29 +47,24 @@ router.get('/detail', async (req, res) => {
   if (id && userInfo && userInfo.id !== id) {
     const userItem = await menuDb.select('*').from('friend_user').where('id', id).queryRow();
     // 插入用户访问详情记录
-    menuDb.insert('friend_Browse')
+    await menuDb.insert('friend_Browse')
       .column('openid', openid)
       .column('user_id', userInfo.id)
       .column('operate_user_id', id)
       .column('operate_type', '浏览')
       .execute();
     // 获取用户是否被收藏
-    try {
-      const collectInfo = await menuDb
-        .select('*')
-        .from('friend_browse')
-        .where('openid', openid)
-        .where('user_id', userInfo.id)
-        .where('operate_user_id', id)
-        .where('operate_type', '收藏')
-        .queryRow();
-      console.log('collectInfo', collectInfo);
-      userItem.collect = collectInfo;
-      res.json({ code: 0, data: transData(userItem) });
-    } catch (err) {
-      console.log('err', err);
-      res.json({ code: 0, data: transData(userItem) });
-    }
+    const collectInfo = await menuDb
+      .select('id')
+      .from('friend_browse')
+      .where('openid', openid)
+      .where('user_id', userInfo.id)
+      .where('operate_user_id', id)
+      .where('operate_type', '收藏')
+      .queryRow();
+    console.log('collectInfo', collectInfo);
+    userItem.collect = collectInfo;
+    res.json({ code: 0, data: transData(userItem) });
   }
   res.json({ code: 0, data: transData(userInfo) });
 });
