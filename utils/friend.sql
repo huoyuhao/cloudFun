@@ -24,7 +24,7 @@ CREATE TABLE `friend_user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';
 
 
-CREATE TABLE `friend_Browse` (
+CREATE TABLE `friend_browse` (
   `id` INT(4) PRIMARY KEY AUTO_INCREMENT,
   `openid` varchar(30) DEFAULT NULL COMMENT 'Openid',
   `user_id` INT(4) DEFAULT NULL COMMENT '用户id',

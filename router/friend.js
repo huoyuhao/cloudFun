@@ -47,9 +47,59 @@ router.get('/detail', async (req, res) => {
       .column('operate_user_id', id)
       .column('operate_type', '浏览')
       .execute();
+    // 获取用户是否被收藏
+    const collectInfo = await menuDb
+      .select('*')
+      .from('friend_browse')
+      .where('openid', openid)
+      .where('user_id', userInfo.id)
+      .where('operate_user_id', id)
+      .where('operate_type', '收藏')
+      .queryRow();
+    userItem.collect = collectInfo;
     res.json({ code: 0, data: transData(userItem) });
   }
-  res.json({ code: 0, data: transData(userList) });
+  res.json({ code: 0, data: transData(userInfo) });
+});
+// 新增用户
+router.post('/index', async (req, res) => {
+  const openid = req.headers['x-user-openid'];
+  if (!openid) {
+    return res.json({ code: 200, msg: '未登录', data: null });
+  }
+  const userItem = await menuDb.select('id').from('friend_user').where('openid', openid).queryRow();
+  console.log('userItem', userItem);
+  if (!userItem) {
+    // 用户信息为空 插入一条数据 然后更新传入字段
+    await menuDb.insert('friend_user').column('openid', openid).execute();
+  }
+  res.json({ code: 0, data: null });
+});
+
+// 收藏
+router.post('/collect', async (req, res) => {
+  const openid = req.headers['x-user-openid'];
+  const data = req.body;
+  const { id } = data;
+  if (!openid) {
+    return res.json({ code: 200, msg: '未登录', data: null });
+  }
+  if (!id) {
+    return res.json({ code: 300, msg: 'ID为空', data: null });
+  }
+  const userInfo = await menuDb.select('*').from('friend_user').where('openid', openid).queryRow();
+  if (userInfo.id !== id) {
+    // 判断是否已经收藏过了 如果已经收藏 则取消收藏
+    // 插入用户访问详情记录
+    menuDb.insert('friend_browse')
+      .column('openid', openid)
+      .column('user_id', userInfo.id)
+      .column('operate_user_id', id)
+      .column('operate_type', '收藏')
+      .execute();
+    res.json({ code: 0, data: null });
+  }
+  res.json({ code: 0, data: null });
 });
 
 module.exports = router;
