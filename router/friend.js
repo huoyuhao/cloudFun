@@ -47,7 +47,7 @@ router.get('/detail', async (req, res) => {
   if (id && userInfo && userInfo.id !== id) {
     const userItem = await menuDb.select('*').from('friend_user').where('id', id).queryRow();
     // 插入用户访问详情记录
-    await menuDb.insert('friend_Browse')
+    await menuDb.insert('friend_browse')
       .column('openid', openid)
       .column('user_id', userInfo.id)
       .column('operate_user_id', id)
@@ -58,12 +58,10 @@ router.get('/detail', async (req, res) => {
       .select('id')
       .from('friend_browse')
       .where('openid', openid)
-      .where('user_id', userInfo.id)
       .where('operate_user_id', id)
       .where('operate_type', '收藏')
       .queryRow();
-    console.log('collectInfo', collectInfo);
-    userItem.collect = collectInfo;
+    userItem.collect = Boolean(collectInfo);
     res.json({ code: 0, data: transData(userItem) });
   }
   res.json({ code: 0, data: transData(userInfo) });
@@ -112,17 +110,34 @@ router.post('/collect', async (req, res) => {
   const userInfo = await menuDb.select('*').from('friend_user').where('openid', openid).queryRow();
   if (userInfo.id !== id) {
     // 判断是否已经收藏过了 如果已经收藏 则取消收藏
-    // 插入用户访问详情记录
-    try {
-      menuDb.insert('friend_browse')
-        .column('openid', openid)
-        .column('user_id', userInfo.id)
-        .column('operate_user_id', id)
-        .column('operate_type', '收藏')
-        .execute();
-      res.json({ code: 0, data: null });
-    } catch (err) {
-      res.json({ code: 300, msg: '收藏失败', data: null });
+    const collectInfo = await menuDb
+      .select('id')
+      .from('friend_browse')
+      .where('user_id', userInfo.id)
+      .where('operate_user_id', id)
+      .column('operate_type', '收藏')
+      .queryRow();
+    console.log('collectInfo', collectInfo);  
+    if (collectInfo) {
+      try {
+        await menuDb.delete('friend_browse').where('id', collectInfo.id).execute();
+        res.json({ code: 0, data: null });
+      } catch (err) {
+        res.json({ code: 300, msg: '取消失败', data: null });
+      }
+    } else {
+      // 插入用户访问详情记录
+      try {
+        await menuDb.insert('friend_browse')
+          .column('openid', openid)
+          .column('user_id', userInfo.id)
+          .column('operate_user_id', id)
+          .column('operate_type', '收藏')
+          .execute();
+        res.json({ code: 0, data: null });
+      } catch (err) {
+        res.json({ code: 300, msg: '收藏失败', data: null });
+      }
     }
   }
   res.json({ code: 0, data: null });
@@ -179,6 +194,7 @@ router.get('/user/browse', async (req, res) => {
   const userInfo = await menuDb.select('id').from('friend_user').where('openid', openid).queryRow();
   // 看过我的
   if (type === '浏览') {
+    // 统计浏览数量 合并
     result.browseList = await menuDb
       .select('*')
       .from('friend_browse')
