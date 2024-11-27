@@ -23,10 +23,12 @@ const initHotNumber = async() => {
   collectList.forEach((item) => {
     if (item.operate_user_id !== id) {
       // 发现不同用户id 更新上一个用户id的hot值
-      menuDb.update('friend_user')
-        .set('hot_number', hotNumber)
-        .where('id', id)
-        .execute();
+      if (id > 0) {
+        menuDb.update('friend_user')
+          .set('hot_number', hotNumber)
+          .where('id', id)
+          .execute();
+      }
       // 更新用户id和hot
       id = item.operate_user_id;
       hotNumber = 0;
@@ -48,7 +50,7 @@ const initHotNumber = async() => {
 const initScheduleTask = () => {
   // 存在问题 只能使用 */ 方式触发 时区是伦敦时区 需要 +8 每天凌晨4点59份59秒触发
   // schedule.scheduleJob('*/59 */59 */20 * * *', () => {
-  schedule.scheduleJob('*/59 */8 */9 * * *', () => {
+  schedule.scheduleJob('* */18 */9 * * *', () => {
     const dateTime = dayjs().tz().format('HH:mm:ss');
     menuDb.insert('friend_browse')
       .column('openid', dateTime)
