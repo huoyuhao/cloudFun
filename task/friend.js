@@ -1,6 +1,11 @@
 const schedule = require('node-schedule');
 const { menuDb } = require('../utils/ali-mysql');
 const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Shanghai'); // 设置时区为上海，东八区，UTC + 8
 
 const initHotNumber = async() => {
     // 获取近30天所有浏览数据
@@ -10,12 +15,11 @@ const initHotNumber = async() => {
 };
 const initScheduleTask = () => {
   // 每天凌晨3点30分30秒触发定时任务
-  schedule.scheduleJob('*/50 */55 * * * * *', () => {
-    console.log(`${new Date()} 定时任务开始。`);
-    const dateTime = dayjs().format('HH:mm:ss');
+  schedule.scheduleJob('*/30 */30 */16 * * *', () => {
+    const dateTime = dayjs().tz().format('HH:mm:ss');
     menuDb.insert('friend_browse')
       .column('openid', dateTime)
-      .column('operate_number', 2)
+      .column('operate_number', 1)
       .execute();
   });
 };
