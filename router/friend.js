@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { menuDb } = require('../utils/ali-mysql');
 const { transData, toHump } = require('../utils/common.js');
+const dayjs = require('dayjs');
 
 const userArr = [
   'name', 'user_img', 'sex', 'birth_date', 'height', 'qualification', 'career',
@@ -15,20 +16,37 @@ router.get('/list', async (req, res) => {
   const openid = req.headers['x-user-openid'];
   const data = req.query;
   const page = Number(data.page) || 1;
-  // , age, sort
-  const { province, city, sex } = data || {};
+  // sort
+  const { province, city, sex, age } = data || {};
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
+  let startBirthDate = '';
+  let endBirthDate = '';
+  // age 根据年龄和用户本人差距 需要判断用户填写个人信息 0-3 比自己大 切3岁以内 -3 比自己小 或者大3岁以内
+  if (age) {
+    const [minAge, maxAge] = age.split('-');
+    const userInfo = await menuDb.select('*').from('friend_user').where('openid', openid).queryRow();
+    if (userInfo && userInfo.birth_date) {
+      if (minAge) {
+        startBirthDate = dayjs(userInfo.birth_date).subtract(minAge, 'year').format('YYYY-MM-DD');
+      }
+      if (maxAge) {
+        endBirthDate = dayjs(userInfo.birth_date).add(maxAge, 'year').format('YYYY-MM-DD');
+      }
+    }
+  }
   // todo 待定 根据修改时间排序 热度 根据 90天 用户详情访问次数/人次/收藏数 排序（排除自己访问）
   // 定时任务 每天获取最近90天 用户详情访问量 统计到user表 hotNumber字段
-  // age 根据年龄和用户本人差距 需要判断用户填写个人信息
   // 查询条件
   const userData = await menuDb
     .select('*').from('friend_user')
     .where('location', province, 'like', 'ifHave')
     .where('location', city, 'like', 'ifHave', 'and')
     .where('sex', sex, 'eq', 'ifHave', 'and')
+    .where('birth_date', startBirthDate, 'ge', 'ifHave', 'and')
+    .where('birth_date', endBirthDate, 'le', 'ifHave', 'and')
+    .where('openid', openid, 'ne')
     .orderby('modified_time desc')
     .queryListWithPaging(page, pageSize);
   const { pageIndex, pageCount, rows } = userData;
