@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { menuDb } = require('../utils/ali-mysql');
 const { transData, toHump } = require('../utils/common.js');
-const { initScheduleTask } = require('../task/friend.js');
+const { initHotNumber } = require('../task/friend.js');
 const dayjs = require('dayjs');
 
 const userArr = [
@@ -17,8 +17,7 @@ router.get('/list', async (req, res) => {
   const openid = req.headers['x-user-openid'];
   const data = req.query;
   const page = Number(data.page) || 1;
-  // sort
-  const { province, city, sex, age } = data || {};
+  const { province, city, sex, age, sort } = data || {};
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
@@ -37,6 +36,7 @@ router.get('/list', async (req, res) => {
       }
     }
   }
+  const orderData = sort === 'hot' ? 'hot_number desc' : 'modified_time desc';
   // 查询条件
   const userData = await menuDb
     .select('*').from('friend_user')
@@ -46,7 +46,7 @@ router.get('/list', async (req, res) => {
     .where('birth_date', startBirthDate, 'ge', 'ifHave', 'and')
     .where('birth_date', endBirthDate, 'le', 'ifHave', 'and')
     .where('openid', openid, 'ne')
-    .orderby('modified_time desc')
+    .orderby(orderData)
     .queryListWithPaging(page, pageSize);
   const { pageIndex, pageCount, rows } = userData;
   res.json({ code: 0, data: { pageIndex, pageCount, list: transData(rows) } });
@@ -251,7 +251,7 @@ router.get('/user/browse', async (req, res) => {
 
 // 获取 收藏、被浏览详情
 router.get('/refresh/browse', async (req, res) => {
-  initScheduleTask();
+  initHotNumber();
   res.json({ code: 0, data: [] });
 });
 module.exports = router;
