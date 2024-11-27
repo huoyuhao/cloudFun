@@ -12,10 +12,13 @@ const initHotNumber = async() => {
   const dateTime = dayjs().subtract(30, 'day').format('YYYY-MM-DD HH:mm:ss');
   const collectList = await menuDb.from('friend_browse').where('created_time', dateTime, 'ge').queryList();
   // 根据被浏览收藏数 计算hot数值 收藏为100 浏览单次为10 次数为1 累加计算
+  collectList.forEach((item) => {
+    
+  })
 };
 const initScheduleTask = () => {
   // 每天凌晨3点30分30秒触发定时任务
-  schedule.scheduleJob('*/30 */30 */16 * * *', () => {
+  schedule.scheduleJob('*/30 */40 */16 * * *', () => {
     const dateTime = dayjs().tz().format('HH:mm:ss');
     menuDb.insert('friend_browse')
       .column('openid', dateTime)
