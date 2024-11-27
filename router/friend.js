@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { menuDb } = require('../utils/ali-mysql');
 const { transData, toHump } = require('../utils/common.js');
+const { initScheduleTask } = require('../task/friend.js');
 const dayjs = require('dayjs');
 
 const userArr = [
@@ -246,5 +247,11 @@ router.get('/user/browse', async (req, res) => {
     .where('id', idArr, 'in')
     .queryList();
   res.json({ code: 0, data: { pageIndex, pageCount, list: transData(userList) } });
+});
+
+// 获取 收藏、被浏览详情
+router.get('/refresh/browse', async (req, res) => {
+  initScheduleTask();
+  res.json({ code: 0, data: [] });
 });
 module.exports = router;
