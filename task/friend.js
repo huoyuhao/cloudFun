@@ -19,6 +19,11 @@ const initHotNumber = async() => {
     .queryList();
   let id = 0;
   let hotNumber = 0;
+  const dateTime1 = dayjs().tz().format('HH:mm:ss');
+  menuDb.insert('friend_browse')
+    .column('openid', dateTime1)
+    .column('operate_number', collectList.length)
+    .execute();
   // 根据被浏览收藏数 计算hot数值 收藏为100 浏览单次为10 次数为1 累加计算
   collectList.forEach((item) => {
     if (item.operate_user_id !== id) {
@@ -39,6 +44,10 @@ const initHotNumber = async() => {
     if (item.operate_type === '收藏') {
       hotNumber += 100;
     }
+    menuDb.insert('friend_browse')
+      .column('openid', String(hotNumber))
+      .column('user_id', id)
+      .execute();
   });
   if (id) {
     menuDb.update('friend_user')
@@ -50,11 +59,7 @@ const initHotNumber = async() => {
 const initScheduleTask = () => {
   // 存在问题 只能使用 */ 方式触发 时区是伦敦时区 需要 +8 每天凌晨4点59份59秒触发
   // schedule.scheduleJob('*/59 */59 */20 * * *', () => {
-  schedule.scheduleJob('*/60 */23 */9 * * *', () => {
-    const dateTime = dayjs().tz().format('HH:mm:ss');
-    menuDb.insert('friend_browse')
-      .column('openid', dateTime)
-      .execute();
+  schedule.scheduleJob('*/60 */30 */9 * * *', () => {
     initHotNumber();
   });
 };
