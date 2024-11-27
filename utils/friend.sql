@@ -19,6 +19,7 @@ CREATE TABLE `friend_user` (
   `cohabit` varchar(12) DEFAULT NULL COMMENT '同住',
   `iphone` varchar(20) DEFAULT NULL COMMENT '电话',
   `expectation_desc` varchar(300) DEFAULT NULL COMMENT '期待描述',
+  `hot_number` INT(6) DEFAULT NULL COMMENT '热点指数',
   `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `modified_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';
