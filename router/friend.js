@@ -36,8 +36,6 @@ router.get('/list', async (req, res) => {
       }
     }
   }
-  // todo 待定 根据修改时间排序 热度 根据 90天 用户详情访问次数/人次/收藏数 排序（排除自己访问）
-  // 定时任务 每天获取最近90天 用户详情访问量 统计到user表 hotNumber字段
   // 查询条件
   const userData = await menuDb
     .select('*').from('friend_user')
@@ -65,42 +63,45 @@ router.get('/detail', async (req, res) => {
   // 如果没有id 返回个人信息，有id 返回用户详情
   if (id && userInfo && userInfo.id !== id) {
     const userItem = await menuDb.select('*').from('friend_user').where('id', id).queryRow();
+    if (userItem) {
     // 判断是否已经浏览过
-    const browseInfo = await menuDb
-      .select('id, operate_number')
-      .from('friend_browse')
-      .where('openid', openid)
-      .where('operate_user_id', id)
-      .where('operate_type', '浏览')
-      .queryRow();
-    if (browseInfo) {
-      // 浏览过 更新浏览次数
-      await menuDb.update('friend_browse')
-        .column('operate_number', browseInfo.operate_number + 1)
-        .where('id', browseInfo.id)
-        .execute();
-    } else {
-      // 插入用户访问详情记录
-      await menuDb.insert('friend_browse')
-        .column('openid', openid)
-        .column('user_id', userInfo.id)
-        .column('operate_user_id', id)
-        .column('operate_type', '浏览')
-        .column('operate_number', 1)
-        .execute();
+      const browseInfo = await menuDb
+        .select('id, operate_number')
+        .from('friend_browse')
+        .where('openid', openid)
+        .where('operate_user_id', id)
+        .where('operate_type', '浏览')
+        .queryRow();
+      if (browseInfo) {
+        // 浏览过 更新浏览次数
+        await menuDb.update('friend_browse')
+          .column('operate_number', browseInfo.operate_number + 1)
+          .where('id', browseInfo.id)
+          .execute();
+      } else {
+        // 插入用户访问详情记录
+        await menuDb.insert('friend_browse')
+          .column('openid', openid)
+          .column('user_id', userInfo.id)
+          .column('operate_user_id', id)
+          .column('operate_type', '浏览')
+          .column('operate_number', 1)
+          .execute();
+      }
+      // 获取用户是否被收藏
+      const collectInfo = await menuDb
+        .select('id')
+        .from('friend_browse')
+        .where('openid', openid)
+        .where('operate_user_id', id)
+        .where('operate_type', '收藏')
+        .queryRow();
+      userItem.collect = Boolean(collectInfo);
+      res.json({ code: 0, data: transData(userItem) });
     }
-    // 获取用户是否被收藏
-    const collectInfo = await menuDb
-      .select('id')
-      .from('friend_browse')
-      .where('openid', openid)
-      .where('operate_user_id', id)
-      .where('operate_type', '收藏')
-      .queryRow();
-    userItem.collect = Boolean(collectInfo);
-    res.json({ code: 0, data: transData(userItem) });
+    res.json({ code: 0, data: {} });
   }
-  res.json({ code: 0, data: transData(userInfo) });
+  res.json({ code: 0, data: transData(userInfo || {}) });
 });
 // 新增用户
 router.post('/index', async (req, res) => {
