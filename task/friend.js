@@ -48,7 +48,7 @@ const initHotNumber = async() => {
   }
 };
 const initScheduleTask = () => {
-  // 存在问题 只能使用 */ 方式触发 时区是伦敦时区 需要 +8 
+  // 存在问题 只能使用 */ 方式触发 时区是伦敦时区 需要 +8
   schedule.scheduleJob('*/60 */60 */8 * * *', () => {
     initHotNumber();
   });

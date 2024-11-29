@@ -8,7 +8,7 @@ const dayjs = require('dayjs');
 
 const userArr = [
   'name', 'user_img', 'sex', 'birth_date', 'height', 'qualification', 'career',
-  'location', 'residence_place', 'annual_income', 'home_car', 'weixin', 'desc',
+  'location', 'residence_place', 'annual_income', 'home_car', 'weixin', 'person_desc',
   'license', 'child', 'cohabit', 'iphone', 'expectation_desc'
 ];
 const pageSize = 10;
@@ -16,9 +16,9 @@ const pageSize = 10;
 const getSelectStr = () => {
   // 删除 电话 微信查询结果 单独加密查询
   const arr = ['id', 'openid', 'created_time', 'modified_time', ...userArr];
-  const selectArr = arr.filter(e => !['weixin', 'iphone'].includes(e));
+  const selectArr = arr.filter((e) => !['weixin', 'iphone'].includes(e));
   return selectArr.join(', ');
-}
+};
 router.get('/list', async (req, res) => {
   const openid = req.headers['x-user-openid'];
   const data = req.query || {};
@@ -26,7 +26,7 @@ router.get('/list', async (req, res) => {
   const { age, sort } = data;
   const province = decodeURIComponent(data.province || '');
   const city = decodeURIComponent(data.city || '');
-  const sex = decodeURIComponent(data.sex || '')
+  const sex = decodeURIComponent(data.sex || '');
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }

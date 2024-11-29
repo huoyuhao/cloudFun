@@ -13,7 +13,7 @@ CREATE TABLE `friend_user` (
   `annual_income` varchar(20) DEFAULT NULL COMMENT '年收入',
   `home_car` varchar(20) DEFAULT NULL COMMENT '房车情况',
   `weixin` varchar(20) DEFAULT NULL COMMENT '微信号',
-  `desc` varchar(300) DEFAULT NULL COMMENT '个人描述',
+  `person_desc` varchar(300) DEFAULT NULL COMMENT '个人描述',
   `license` varchar(12) DEFAULT NULL COMMENT '领证',
   `child` varchar(12) DEFAULT NULL COMMENT '孩子',
   `cohabit` varchar(12) DEFAULT NULL COMMENT '同住',
