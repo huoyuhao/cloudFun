@@ -125,6 +125,9 @@ router.post('/index', async (req, res) => {
     // 用户信息为空 先插入数据 然后更新传入字段
     await menuDb.insert('friend_user').column('openid', openid).execute();
   }
+  if (!data) {
+    return res.json({ code: 0, data: '插入用户成功' });
+  }
   const updateObj = {};
   userArr.forEach((key) => {
     if (data[toHump(key)]) {
