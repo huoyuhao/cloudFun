@@ -49,6 +49,7 @@ router.get('/list', async (req, res) => {
   // 查询条件
   const userData = await menuDb
     .select(getSelectStr()).from('friend_user')
+    .where('birth_date', '', 'isnotnull')
     .where('location', province, 'like', 'ifHave')
     .where('location', city, 'like', 'ifHave', 'and')
     .where('sex', sex, 'eq', 'ifHave', 'and')
@@ -126,6 +127,7 @@ router.post('/index', async (req, res) => {
     await menuDb.insert('friend_user').column('openid', openid).execute();
     return res.json({ code: 0, data: '插入用户成功' });
   }
+  if (!data) return res.json({ code: 0, data: '更新信息为空' });
   const updateObj = {};
   userArr.forEach((key) => {
     if (data[toHump(key)]) {
