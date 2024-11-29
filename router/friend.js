@@ -22,7 +22,6 @@ router.get('/list', async (req, res) => {
   const province = decodeURIComponent(data.province || '');
   const city = decodeURIComponent(data.city || '');
   const sex = decodeURIComponent(data.sex || '')
-  console.log(province, city, sex);
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
@@ -33,14 +32,15 @@ router.get('/list', async (req, res) => {
     const [minAge, maxAge] = age.split('-');
     const userInfo = await menuDb.select('*').from('friend_user').where('openid', openid).queryRow();
     if (userInfo && userInfo.birth_date) {
-      if (minAge) {
-        startBirthDate = dayjs(userInfo.birth_date).subtract(minAge, 'year').format('YYYY-MM-DD');
-      }
       if (maxAge) {
-        endBirthDate = dayjs(userInfo.birth_date).add(maxAge, 'year').format('YYYY-MM-DD');
+        startBirthDate = dayjs(userInfo.birth_date).subtract(maxAge, 'year').format('YYYY-MM-DD');
+      }
+      if (minAge) {
+        endBirthDate = dayjs(userInfo.birth_date).add(minAge, 'year').format('YYYY-MM-DD');
       }
     }
   }
+  console.log(startBirthDate, endBirthDate)
   const orderData = sort === 'hot' ? 'hot_number desc' : 'modified_time desc';
   // 查询条件
   const userData = await menuDb
