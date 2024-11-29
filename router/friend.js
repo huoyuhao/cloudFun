@@ -117,7 +117,7 @@ router.get('/detail', async (req, res) => {
 // 新增用户
 router.post('/index', async (req, res) => {
   const openid = req.headers['x-user-openid'];
-  const data = req.body;
+  const data = req.body || {};
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
@@ -127,7 +127,7 @@ router.post('/index', async (req, res) => {
     await menuDb.insert('friend_user').column('openid', openid).execute();
     return res.json({ code: 0, data: '插入用户成功' });
   }
-  if (!data) return res.json({ code: 0, data: '更新信息为空' });
+  if (Object.keys(data).length === 0) return res.json({ code: 0, data: '更新信息为空' });
   const updateObj = {};
   userArr.forEach((key) => {
     if (data[toHump(key)]) {
