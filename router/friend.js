@@ -13,7 +13,12 @@ const userArr = [
 ];
 const pageSize = 10;
 // 获取交友列表
-
+const getSelectStr = () => {
+  // 删除 电话 微信查询结果 单独加密查询
+  const arr = ['id', 'openid', 'created_time', 'modified_time', ...userArr];
+  const selectArr = arr.filter(e => !['weixin', 'iphone'].includes(e));
+  return selectArr.join(', ');
+}
 router.get('/list', async (req, res) => {
   const openid = req.headers['x-user-openid'];
   const data = req.query || {};
@@ -40,11 +45,10 @@ router.get('/list', async (req, res) => {
       }
     }
   }
-  console.log(startBirthDate, endBirthDate)
   const orderData = sort === 'hot' ? 'hot_number desc' : 'modified_time desc';
   // 查询条件
   const userData = await menuDb
-    .select('*').from('friend_user')
+    .select(getSelectStr()).from('friend_user')
     .where('location', province, 'like', 'ifHave')
     .where('location', city, 'like', 'ifHave', 'and')
     .where('sex', sex, 'eq', 'ifHave', 'and')
@@ -68,7 +72,7 @@ router.get('/detail', async (req, res) => {
   const userInfo = await menuDb.select('*').from('friend_user').where('openid', openid).queryRow();
   // 如果没有id 返回个人信息，有id 返回用户详情
   if (id && userInfo && userInfo.id !== id) {
-    const userItem = await menuDb.select('*').from('friend_user').where('id', id).queryRow();
+    const userItem = await menuDb.select(getSelectStr()).from('friend_user').where('id', id).queryRow();
     if (userItem) {
     // 判断是否已经浏览过
       const browseInfo = await menuDb
@@ -150,7 +154,7 @@ router.post('/collect', async (req, res) => {
   if (!id) {
     return res.json({ code: 300, msg: 'ID为空', data: null });
   }
-  const userInfo = await menuDb.select('*').from('friend_user').where('openid', openid).queryRow();
+  const userInfo = await menuDb.select('id').from('friend_user').where('openid', openid).queryRow();
   if (userInfo.id !== id) {
     // 判断是否已经收藏过了 如果已经收藏 则取消收藏
     const collectInfo = await menuDb
@@ -248,7 +252,7 @@ router.get('/user/browse', async (req, res) => {
   const { pageIndex, pageCount, rows } = browseData;
   const idArr = rows.map((e) => e[selectKey]);
   const userList = await menuDb
-    .select('*')
+    .select(getSelectStr())
     .from('friend_user')
     .where('id', idArr, 'in')
     .queryList();
