@@ -48,8 +48,8 @@ const initHotNumber = async() => {
   }
 };
 const initScheduleTask = () => {
-  // 存在问题 只能使用 */ 方式触发 时区是伦敦时区 需要 +8 每天凌晨4点59份59秒触发
-  schedule.scheduleJob('*/60 */60 */3 * * *', () => {
+  // 存在问题 只能使用 */ 方式触发 时区是伦敦时区 需要 +8 
+  schedule.scheduleJob('*/60 */60 */24 * * *', () => {
     initHotNumber();
   });
 };

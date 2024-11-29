@@ -16,19 +16,20 @@ const pageSize = 10;
 
 router.get('/list', async (req, res) => {
   const openid = req.headers['x-user-openid'];
-  const data = req.query;
+  const data = req.query || {};
   const page = Number(data.page) || 1;
-  const { age, sort } = data || {};
-  const province = decodeURIComponent(data.province) || '';
-  const city = decodeURIComponent(data.city) || '';
-  const sex = decodeURIComponent(data.sex) || '';
+  const { age, sort } = data;
+  const province = decodeURIComponent(data.province || '');
+  const city = decodeURIComponent(data.city || '');
+  const sex = decodeURIComponent(data.sex || '')
+  console.log(province, city, sex);
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
   let startBirthDate = '';
   let endBirthDate = '';
   // age 根据年龄和用户本人差距 需要判断用户填写个人信息 0-3 比自己大 切3岁以内 -3 比自己小 或者大3岁以内
-  if (age) {
+  if (age && age !== '-') {
     const [minAge, maxAge] = age.split('-');
     const userInfo = await menuDb.select('*').from('friend_user').where('openid', openid).queryRow();
     if (userInfo && userInfo.birth_date) {
