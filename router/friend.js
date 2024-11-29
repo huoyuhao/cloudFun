@@ -13,11 +13,15 @@ const userArr = [
 ];
 const pageSize = 10;
 // 获取交友列表
+
 router.get('/list', async (req, res) => {
   const openid = req.headers['x-user-openid'];
   const data = req.query;
   const page = Number(data.page) || 1;
-  const { province, city, sex, age, sort } = data || {};
+  const { age, sort } = data || {};
+  const province = decodeURIComponent(data.province) || '';
+  const city = decodeURIComponent(data.city) || '';
+  const sex = decodeURIComponent(data.sex) || '';
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
   }
@@ -223,7 +227,8 @@ router.get('/user/info', async (req, res) => {
 router.get('/user/browse', async (req, res) => {
   const openid = req.headers['x-user-openid'];
   const data = req.query;
-  const { type, isOperate } = data || {};
+  const { isOperate } = data || {};
+  const type = decodeURIComponent(data.type) || '';
   const page = Number(data.page) || 1;
   if (!openid) {
     return res.json({ code: 200, msg: '未登录', data: null });
