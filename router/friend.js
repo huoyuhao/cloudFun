@@ -142,7 +142,7 @@ router.post('/index', async (req, res) => {
     // 获取更新数据 进行更新
     res.json({ code: 0, data: result });
   } catch (err) {
-    res.json({ code: 300, msg: '更新失败', data: null });
+    res.json({ code: 300, msg: '更新失败', data: err });
   }
 });
 

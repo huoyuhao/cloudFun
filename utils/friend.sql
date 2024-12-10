@@ -2,7 +2,7 @@ CREATE TABLE `friend_user` (
   `id` INT(4) PRIMARY KEY AUTO_INCREMENT,
   `openid` varchar(30) DEFAULT NULL COMMENT 'Openid',
   `name` varchar(20) DEFAULT NULL COMMENT '用户昵称',
-  `user_img` varchar(100) DEFAULT NULL COMMENT '用户头像',
+  `user_img` varchar(300) DEFAULT NULL COMMENT '用户头像',
   `sex` varchar(1) DEFAULT NULL COMMENT '性别',
   `birth_date` varchar(12) DEFAULT NULL COMMENT '出生年月日',
   `height` varchar(20) DEFAULT NULL COMMENT '身高',

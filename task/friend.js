@@ -34,7 +34,7 @@ const initHotNumber = async() => {
       hotNumber = 0;
     }
     if (item.operate_type === '浏览') {
-      hotNumber += Math.min(item.operate_number, 10) + 10; // 浏览单次最多10次
+      hotNumber += Math.min(item.operate_number, 30) + 10; // 浏览单次最多10次
     }
     if (item.operate_type === '收藏') {
       hotNumber += 100;
