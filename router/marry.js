@@ -4,18 +4,13 @@ const router = express.Router();
 const { menuDb } = require('../utils/ali-mysql.js');
 const { transData } = require('../utils/common.js');
 
-const userArr = ['name', 'tel', 'num', 'desc'];
-// 获取详情
-const getSelectStr = () => {
-  const arr = ['id', 'created_time', 'modified_time', ...userArr];
-  return arr.join(', ');
-};
 router.get('/detail', async (req, res) => {
   const { name } = req.query || {};
+  if (!name) res.json({ code: 0, data: null });
   // 查询条件
   const userItem = await menuDb
-    .select(getSelectStr()).from('marry_user')
-    .where('name', name, 'ne')
+    .select('*').from('marry_user')
+    .where('name', name)
     .queryRow();
   if (userItem) {
     res.json({ code: 0, data: transData(userItem) });
