@@ -15,6 +15,12 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 // 解析请求入参
 app.use(express.json());
 // 使用 cors 中间件
+const corsOptions = {
+  origin: 'https://marry.liamhuo.com', // 允许的源
+  methods: 'PUT,POST,GET,DELETE,OPTIONS', // 允许的HTTP方法
+  allowedHeaders: 'Content-Type, application/json;charset=utf-8' // 允许的请求头字段
+};
+app.use(cors(corsOptions));
 app.use(cors());
 app.use('/api/*', async (req, res, next) => {
   // res.setHeader('Access-Control-Allow-Origin', '*');
