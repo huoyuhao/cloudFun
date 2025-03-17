@@ -13,15 +13,14 @@ const getSelectStr = () => {
 router.get('/detail', async (req, res) => {
   const { name } = req.query || {};
   // 查询条件
-  const userData = await menuDb
+  const userItem = await menuDb
     .select(getSelectStr()).from('marry_user')
     .where('name', name, 'ne')
     .queryRow();
-  if (browseInfo) {
+  if (userItem) {
     res.json({ code: 0, data: transData(userItem) });
   }
-  const { pageIndex, pageCount, rows } = userData;
-  res.json({ code: 0, data: { pageIndex, pageCount, list: transData(rows) } });
+  res.json({ code: 0, data: null });
 });
 
 // 新增
@@ -33,9 +32,19 @@ router.post('/index', async (req, res) => {
     // 用户信息为空 先插入数据 然后更新传入字段
     await menuDb.insert('marry_user')
       .column('name', name)
+      .column('tel', tel)
+      .column('num', num)
+      .column('desc', desc)
       .execute();
-    return res.json({ code: 0, data: '插入用户成功' });
+    return res.json({ code: 0, data: '登记成功' });
   }
+  await menuDb.update('marry_user')
+    .column('tel', tel)
+    .column('num', num)
+    .column('desc', desc)
+    .where('id', userItem.id)
+    .execute();
+    res.json({ code: 0, data: '更新成功' });
 });
 
 module.exports = router;
