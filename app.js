@@ -7,15 +7,12 @@ const { initScheduleTask } = require('./task/friend.js');
 
 const app = express();
 const port = config.get('systemConfig.port');
-const cors = require('cors');
 
 // 请求主体大小限制
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 // 解析请求入参
 app.use(express.json());
-// 使用 cors 中间件
-app.use(cors());
 app.use('/api/*', async (req, res, next) => {
   // res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With');
