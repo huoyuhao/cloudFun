@@ -39,7 +39,7 @@ router.post('/index', async (req, res) => {
     .column('desc', desc)
     .where('id', userItem.id)
     .execute();
-    res.json({ code: 0, data: '更新成功' });
+    res.json({ code: 0, data: '更新登记成功' });
 });
 
 module.exports = router;

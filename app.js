@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.json());
 app.use('/api/*', async (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With');
+  res.header("Access-Control-Allow-Headers","Origin,X-Requested-With,Content-Type, Accept");
   res.setHeader('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
   res.setHeader('Content-Type', 'application/json;charset=utf-8');
   next();
