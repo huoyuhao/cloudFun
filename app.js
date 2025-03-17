@@ -7,23 +7,15 @@ const { initScheduleTask } = require('./task/friend.js');
 
 const app = express();
 const port = config.get('systemConfig.port');
-const cors = require('cors');
 
 // 请求主体大小限制
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 // 解析请求入参
 app.use(express.json());
-// 使用 cors 中间件
-const corsOptions = {
-  origin: 'https://marry.liamhuo.com', // 允许的源
-  methods: 'PUT,POST,GET,DELETE,OPTIONS', // 允许的HTTP方法
-  allowedHeaders: 'Content-Type, application/json;charset=utf-8' // 允许的请求头字段
-};
-app.use(cors(corsOptions));
 app.use(cors());
 app.use('/api/*', async (req, res, next) => {
-  // res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With');
   res.setHeader('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS');
   res.setHeader('Content-Type', 'application/json;charset=utf-8');
