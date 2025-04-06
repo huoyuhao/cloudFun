@@ -4,6 +4,16 @@ const router = express.Router();
 const { menuDb } = require('../utils/ali-mysql.js');
 const { transData } = require('../utils/common.js');
 
+router.get('/list', async (req, res) => {
+  // 查询条件
+  const userItem = await menuDb
+    .select('name, desc').from('marry_user')
+    .queryList();
+  if (userItem) {
+    res.json({ code: 0, data: transData(userItem) });
+  }
+  res.json({ code: 0, data: null });
+});
 router.get('/detail', async (req, res) => {
   const { name } = req.query || {};
   if (!name) res.json({ code: 0, data: null });
